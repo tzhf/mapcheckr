@@ -102,7 +102,7 @@ import Badge from "./components/Badge.vue";
 import { SVreq } from "./SVreq";
 
 const settings = reactive({
-	adjustHeading: true,
+	adjustHeading: false,
 	headingDeviation: 0,
 	adjustPitch: false,
 	pitchDeviation: 0,
@@ -229,7 +229,13 @@ const checkJSON = (data) => {
 // Export
 const copyToClipboard = (data) => {
 	navigator.clipboard
-		.writeText(JSON.stringify({ customCoordinates: data }))
+		.writeText(
+			JSON.stringify({
+				name: customMap.value.name,
+				description: customMap.value.description,
+				customCoordinates: data,
+			})
+		)
 		.then(() => {})
 		.catch((err) => {
 			console.log("Something went wrong", err);
@@ -237,7 +243,15 @@ const copyToClipboard = (data) => {
 };
 
 const exportToJsonFile = (data, isRejected = false) => {
-	const dataUri = "data:application/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ customCoordinates: data }));
+	const dataUri =
+		"data:application/json;charset=utf-8," +
+		encodeURIComponent(
+			JSON.stringify({
+				name: customMap.value.name,
+				description: customMap.value.description,
+				customCoordinates: data,
+			})
+		);
 	const fileName = `${customMap.value.name ? customMap.value.name : "Custom Map"} - ${isRejected ? "rejected" : "resolved"} ${data.length} ${pluralize(
 		"location",
 		data.length
