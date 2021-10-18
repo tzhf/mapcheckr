@@ -101,6 +101,13 @@ import Badge from "./components/Badge.vue";
 
 import { SVreq } from "./SVreq";
 
+Array.prototype.chunk = function (n) {
+  if (!this.length) {
+    return [];
+  }
+  return [this.slice(0, n)].concat(this.slice(n).chunk(n));
+};
+
 const settings = reactive({
 	adjustHeading: false,
 	headingDeviation: 0,
@@ -141,44 +148,31 @@ const resetState = () => {
 const error = ref("");
 
 // Process
-const handleClickStart = () => {
+const handleClickStart = async () => {
 	state.started = true;
-	start();
+	await start();
 };
 
-const start = () => {
-	setTimeout(() => {
-		state.step++;
-		SVreq(mapToCheck.shift(), settings).then(
-			(resolved) => {
-				resolvedLocs.push(resolved);
+const start = async () => {
+	const chunkSize = 100;
+	for (let locationGroup of mapToCheck.chunk(chunkSize)) {
+		const responses = await Promise.allSettled(locationGroup.map(l => SVreq(l, settings)));
+		for (let response of responses) {
+			if (response.status === "fulfilled") {
+				resolvedLocs.push(response.value);
 				state.success++;
-			},
-			(rejected) => {
-				rejectedLocs.push(rejected);
-				switch (rejected.reason) {
-					case "sv not found":
-						state.notFound++;
-						break;
-					case "unofficial coverage":
-						state.unofficial++;
-						break;
-					case "no link found":
-						state.brokenLinks++;
-						break;
-					case "too old":
-						state.blurry++;
-						break;
-				}
+			} else {
+				rejectedLocs.push(response.reason);
+				state.notFound += response.reason.reason === "sv not found" ? 1 : 0;
+				state.unofficial += response.reason.reason === "unofficial coverage" ? 1 : 0;
+				state.brokenLinks += response.reason.reason === "no link found" ? 1 : 0;
+				state.blurry += response.reason.reason === "too old" ? 1 : 0;
 			}
-		);
-
-		if (mapToCheck.length > 0) {
-			start();
-		} else {
-			state.finished = true;
+			state.step++;			
 		}
-	}, 10);
+	}
+	
+	state.finished = true;
 };
 
 // Import
