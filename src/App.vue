@@ -35,7 +35,7 @@
 								Heading deviation <input type="range" v-model.number="settings.headingDeviation" min="0" max="50" /> (+/-
 								{{ settings.headingDeviation }}°)
 							</label>
-							<small>0° will points directly towards the road. </small>
+							<small>0° will point directly towards the road. </small>
 						</div>
 					</div>
 
