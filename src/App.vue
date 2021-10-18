@@ -35,7 +35,7 @@
 								Heading deviation <input type="range" v-model.number="settings.headingDeviation" min="0" max="50" /> (+/-
 								{{ settings.headingDeviation }}°)
 							</label>
-							<small>0° will point directly towards the road. </small>
+							<small>0° will point directly towards the road.</small>
 						</div>
 					</div>
 
@@ -306,9 +306,6 @@ p {
 .indent {
 	margin: 0.3em 0 0 1.6em;
 }
-.mtb-1 {
-	margin: 1em 0 1em 0;
-}
 hr {
 	height: 1px;
 	background-color: var(--main);
@@ -366,6 +363,9 @@ select:hover {
 }
 .mt-1 {
 	margin-top: 0.5rem;
+}
+.mtb-1 {
+	margin: 1em 0 1em 0;
 }
 .success {
 	color: var(--success);
