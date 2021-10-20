@@ -24,7 +24,7 @@
 
 			<div v-if="!state.started">
 				<div class="settings container">
-					<div class="mtb-1">
+					<div class="mtb-2">
 						<Checkbox
 							v-model:checked="settings.adjustHeading"
 							label="Adjust heading towards the road"
@@ -39,14 +39,14 @@
 						</div>
 					</div>
 
-					<div class="mtb-1">
+					<div class="mtb-2">
 						<Checkbox v-model:checked="settings.adjustPitch" label="Adjust pitch" optText="0 by default. -90° for tarmac/+90° for sky" />
 						<label v-if="settings.adjustPitch" class="flex wrap indent">
 							Pitch deviation <input type="range" v-model.number="settings.pitchDeviation" min="-90" max="90" /> ({{ settings.pitchDeviation }}°)
 						</label>
 					</div>
 
-					<div class="mtb-1">
+					<div class="mtb-2">
 						<Checkbox v-model:checked="settings.rejectByYear" label="Reject by year" />
 						<div v-if="settings.rejectByYear" class="indent">
 							Reject locations older than
@@ -61,7 +61,7 @@
 			</div>
 
 			<div v-if="state.started" class="container center">
-				<h2 v-if="!state.finished">Processing<span class="one">.</span><span class="two">.</span><span class="three">.</span></h2>
+				<h2 v-if="!state.finished" class="flex wrap justify-center">Processing <Spinner /></h2>
 				<h2 v-else>Results</h2>
 				<p><Badge :text="state.step + '/' + customMap.nbLocs" /> {{ pluralize("location", customMap.nbLocs) }}</p>
 				<p><Badge :number="state.success" /> success</p>
@@ -75,19 +75,23 @@
 				<h2 class="center">Export</h2>
 				<div class="flex wrap space-between">
 					<h3 class="success">{{ resolvedLocs.length }} resolved {{ pluralize("location", resolvedLocs.length) }}</h3>
-					<div v-if="resolvedLocs.length > 0" class="flex wrap gap">
+					<div v-if="resolvedLocs.length" class="flex wrap gap">
 						<Button @click="copyToClipboard(resolvedLocs)" text="Copy to Clipboard" />
 						<Button @click="exportToJsonFile(resolvedLocs)" text="Export as JSON" />
 					</div>
 				</div>
 				<hr />
 				<div class="flex wrap space-between">
-					<h3 :class="rejectedLocs.length > 0 ? 'danger' : 'success'">{{ rejectedLocs.length }} rejected {{ pluralize("location", rejectedLocs.length) }}</h3>
-					<div v-if="rejectedLocs.length > 0" class="flex wrap gap">
+					<h3 :class="rejectedLocs.length ? 'danger' : 'success'">{{ rejectedLocs.length }} rejected {{ pluralize("location", rejectedLocs.length) }}</h3>
+					<div v-if="rejectedLocs.length" class="flex wrap gap">
 						<Button @click="copyToClipboard(rejectedLocs)" text="Copy to Clipboard" />
 						<Button @click="exportToJsonFile(rejectedLocs, true)" text="Export as JSON" />
 					</div>
 				</div>
+			</div>
+
+			<div v-if="state.finished && resolvedLocs.length" class="container">
+				<Distribution :locations="resolvedLocs" />
 			</div>
 		</div>
 	</div>
@@ -95,18 +99,14 @@
 
 <script setup>
 import { reactive, ref } from "vue";
-import Button from "./components/Button.vue";
-import Checkbox from "./components/Checkbox.vue";
-import Badge from "./components/Badge.vue";
+import Button from "./components/Elements/Button.vue";
+import Checkbox from "./components/Elements/Checkbox.vue";
+import Badge from "./components/Elements/Badge.vue";
+import Spinner from "./components/Elements/Spinner.vue";
+
+import Distribution from "./components/CountryDistribution.vue";
 
 import { SVreq } from "./SVreq";
-
-Array.prototype.chunk = function (n) {
-  if (!this.length) {
-    return [];
-  }
-  return [this.slice(0, n)].concat(this.slice(n).chunk(n));
-};
 
 const settings = reactive({
 	adjustHeading: false,
@@ -148,30 +148,46 @@ const resetState = () => {
 const error = ref("");
 
 // Process
-const handleClickStart = async () => {
+const handleClickStart = () => {
 	state.started = true;
-	await start();
+	start();
+};
+
+Array.prototype.chunk = function(n) {
+	if (!this.length) {
+		return [];
+	}
+	return [this.slice(0, n)].concat(this.slice(n).chunk(n));
 };
 
 const start = async () => {
 	const chunkSize = 100;
 	for (let locationGroup of mapToCheck.chunk(chunkSize)) {
-		const responses = await Promise.allSettled(locationGroup.map(l => SVreq(l, settings)));
+		const responses = await Promise.allSettled(locationGroup.map((l) => SVreq(l, settings)));
 		for (let response of responses) {
 			if (response.status === "fulfilled") {
 				resolvedLocs.push(response.value);
 				state.success++;
 			} else {
 				rejectedLocs.push(response.reason);
-				state.notFound += response.reason.reason === "sv not found" ? 1 : 0;
-				state.unofficial += response.reason.reason === "unofficial coverage" ? 1 : 0;
-				state.brokenLinks += response.reason.reason === "no link found" ? 1 : 0;
-				state.blurry += response.reason.reason === "too old" ? 1 : 0;
+				switch (response.reason.reason) {
+					case "sv not found":
+						state.notFound++;
+						break;
+					case "unofficial coverage":
+						state.unofficial++;
+						break;
+					case "no link found":
+						state.brokenLinks++;
+						break;
+					case "too old":
+						state.blurry++;
+						break;
+				}
 			}
-			state.step++;			
+			state.step++;
 		}
 	}
-	
 	state.finished = true;
 };
 
@@ -340,6 +356,9 @@ select:hover {
 	display: flex;
 	align-items: center;
 }
+.justify-center {
+	justify-content: center;
+}
 .wrap {
 	flex-wrap: wrap;
 }
@@ -358,7 +377,10 @@ select:hover {
 .mt-1 {
 	margin-top: 0.5rem;
 }
-.mtb-1 {
+.mb-1 {
+	margin-bottom: 0.2rem;
+}
+.mtb-2 {
 	margin: 1em 0 1em 0;
 }
 .success {

@@ -1,17 +1,17 @@
 {
-  "name": "mapcheckr",
-  "version": "0.0.0",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "serve": "vite preview"
-  },
-  "dependencies": {
-    "codegrid-js": "git+https://github.com/tzhf/codegrid-js.git",
-    "vue": "^3.2.16"
-  },
-  "devDependencies": {
-    "@vitejs/plugin-vue": "^1.9.3",
-    "vite": "^2.6.4"
-  }
+	"name": "mapcheckr",
+	"version": "0.0.0",
+	"scripts": {
+		"dev": "vite",
+		"build": "vite build",
+		"serve": "vite build && vite preview"
+	},
+	"dependencies": {
+		"codegrid-js": "git://github.com/hlaw/codegrid-js.git",
+		"vue": "^3.2.16"
+	},
+	"devDependencies": {
+		"@vitejs/plugin-vue": "^1.9.3",
+		"vite": "^2.6.4"
+	}
 }
