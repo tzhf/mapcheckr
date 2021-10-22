@@ -3,7 +3,11 @@
 	<h2 v-else class="center">Distribution</h2>
 	<div class="flex wrap">
 		<div v-for="country in distribution" class="card mb-1">
-			<span :class="`flag-icon flag-` + country.code"></span> {{ country.name ? country.name : "Undefined" }} <Badge :number="country.nb" />
+			<span :class="`flag-icon flag-` + country.code.toLowerCase()"></span>
+			<span>
+				{{ country.name }}<small v-if="country.country"> ({{ country.country }})</small>
+			</span>
+			<Badge :number="country.nb" />
 		</div>
 	</div>
 </template>
@@ -13,16 +17,14 @@ import { ref, toRefs, onMounted } from "vue";
 import Badge from "./Elements/Badge.vue";
 import Spinner from "./Elements/Spinner.vue";
 
-import codegrid from "codegrid-js";
-const CG = codegrid.CodeGrid("./tiles/");
-import { codesNames } from "@/utils/codesNames";
+import { getCountryCode } from "getcountrycode";
 
 const props = defineProps({
 	locations: Array,
 });
 const { locations } = toRefs(props);
 
-const distribution = ref({});
+const distribution = ref([]);
 const loading = ref(true);
 
 onMounted(() => {
@@ -30,36 +32,17 @@ onMounted(() => {
 });
 
 const getDistribution = async (locations) => {
-	const countryCodesArr = [];
-	const promises = [];
+	const countryCodes = [];
 	for (let location of locations) {
-		promises.push(
-			new Promise((resolve) => {
-				CG.getCode(location.lat, location.lng, (error, code) => {
-					console.log("🚀 ~ CG.getCode ~ code", code);
-					countryCodesArr.push(code);
-					resolve();
-				});
-			})
-		);
+		countryCodes.push(getCountryCode({ lat: location.lat, lng: location.lng }));
 	}
 
-	Promise.allSettled(promises).then(() => {
-		const occurrences = Object.entries(
-			countryCodesArr.reduce(function(acc, curr) {
-				return acc[curr] ? ++acc[curr] : (acc[curr] = 1), acc;
-			}, {})
-		).map(([key, value]) => ({
-			code: key,
-			name: codesNames[key],
-			nb: value,
-		}));
-		// console.log(occurrences);
-
-		const filtered = occurrences.sort((a, b) => b.nb - a.nb);
-		distribution.value = filtered;
-		loading.value = false;
+	countryCodes.forEach((country) => {
+		const found = distribution.value.find((e) => e.name == country.name);
+		found ? found.nb++ : distribution.value.push({ ...country, nb: 1 });
 	});
+	distribution.value.sort((a, b) => b.nb - a.nb);
+	loading.value = false;
 };
 </script>
 <style>

@@ -153,7 +153,7 @@ const handleClickStart = () => {
 	start();
 };
 
-Array.prototype.chunk = function(n) {
+Array.prototype.chunk = function (n) {
 	if (!this.length) {
 		return [];
 	}
@@ -226,9 +226,8 @@ const checkJSON = (data) => {
 			return;
 		}
 		error.value = "";
-
 		customMap.value = { name: mapData.name, description: mapData.description, nbLocs: mapData.customCoordinates.length };
-		mapToCheck = mapData.customCoordinates.map(({ panoId, countryCode, stateCode, ...keepAttrs }) => keepAttrs);
+		mapToCheck = mapData.customCoordinates;
 		state.loaded = true;
 	} catch (err) {
 		state.loaded = false;
@@ -400,46 +399,5 @@ input[type="range"] {
 }
 .input-file {
 	display: none;
-}
-.one,
-.three,
-.two {
-	opacity: 0;
-	-webkit-animation: dot 1.3s infinite;
-	animation: dot 1.3s infinite;
-}
-.one {
-	-webkit-animation-delay: 0s;
-	animation-delay: 0s;
-}
-.two {
-	-webkit-animation-delay: 0.2s;
-	animation-delay: 0.2s;
-}
-.three {
-	-webkit-animation-delay: 0.3s;
-	animation-delay: 0.3s;
-}
-@-webkit-keyframes dot {
-	0% {
-		opacity: 0;
-	}
-	50% {
-		opacity: 0;
-	}
-	100% {
-		opacity: 1;
-	}
-}
-@keyframes dot {
-	0% {
-		opacity: 0;
-	}
-	50% {
-		opacity: 0;
-	}
-	100% {
-		opacity: 1;
-	}
 }
 </style>
