@@ -22,40 +22,41 @@
 				<Button v-if="!state.started" @click="handleClickStart" class="mt-1" text="Start checking" />
 			</div>
 
-			<div v-if="!state.started">
-				<div class="settings container">
-					<div class="mtb-2">
-						<Checkbox
-							v-model:checked="settings.adjustHeading"
-							label="Adjust heading towards the road"
-							optText="only applies to locations pointing north by default"
-						/>
-						<div v-if="settings.adjustHeading" class="indent">
-							<label class="flex wrap">
-								Heading deviation <input type="range" v-model.number="settings.headingDeviation" min="0" max="50" /> (+/-
-								{{ settings.headingDeviation }}°)
-							</label>
-							<small>0° will point directly towards the road.</small>
-						</div>
-					</div>
+			<div v-if="!state.started" class="container">
+				<div class="mtb-2">
+					<Checkbox v-model:checked="settings.rejectUnofficial" label="Reject unofficial" optText="Uncheck for photospheres map" />
+				</div>
 
-					<div class="mtb-2">
-						<Checkbox v-model:checked="settings.adjustPitch" label="Adjust pitch" optText="0 by default. -90° for tarmac/+90° for sky" />
-						<label v-if="settings.adjustPitch" class="flex wrap indent">
-							Pitch deviation <input type="range" v-model.number="settings.pitchDeviation" min="-90" max="90" /> ({{ settings.pitchDeviation }}°)
+				<div class="mtb-2">
+					<Checkbox
+						v-model:checked="settings.adjustHeading"
+						label="Adjust heading towards the road"
+						optText="only applies to locations pointing north by default"
+					/>
+					<div v-if="settings.adjustHeading" class="indent">
+						<label class="flex wrap">
+							Heading deviation <input type="range" v-model.number="settings.headingDeviation" min="0" max="50" /> (+/- {{ settings.headingDeviation }}°)
 						</label>
+						<small>0° will point directly towards the road.</small>
 					</div>
+				</div>
 
-					<div class="mtb-2">
-						<Checkbox v-model:checked="settings.rejectByYear" label="Reject by year" />
-						<div v-if="settings.rejectByYear" class="indent">
-							Reject locations older than
-							<select v-model.number="settings.minYear">
-								<option v-for="n in 14">{{ 2007 + n }}</option>
-							</select>
-							<br />
-							<small>&lt; 2008 is the best compromise to get rid of most of the gen 1 without rejecting early gen 2 (eg. whole Germany coverage)</small>
-						</div>
+				<div class="mtb-2">
+					<Checkbox v-model:checked="settings.adjustPitch" label="Adjust pitch" optText="0 by default. -90° for tarmac/+90° for sky" />
+					<label v-if="settings.adjustPitch" class="flex wrap indent">
+						Pitch deviation <input type="range" v-model.number="settings.pitchDeviation" min="-90" max="90" /> ({{ settings.pitchDeviation }}°)
+					</label>
+				</div>
+
+				<div class="mtb-2">
+					<Checkbox v-model:checked="settings.rejectByYear" label="Reject by year" />
+					<div v-if="settings.rejectByYear" class="indent">
+						Reject locations older than
+						<select v-model.number="settings.minYear">
+							<option v-for="n in 14">{{ 2007 + n }}</option>
+						</select>
+						<br />
+						<small>&lt; 2008 is the best compromise to get rid of most of the gen 1 without rejecting early gen 2 (eg. whole Germany coverage)</small>
 					</div>
 				</div>
 			</div>
@@ -109,6 +110,7 @@ import Distribution from "./components/CountryDistribution.vue";
 import { SVreq } from "./SVreq";
 
 const settings = reactive({
+	rejectUnofficial: true,
 	adjustHeading: false,
 	headingDeviation: 0,
 	adjustPitch: false,

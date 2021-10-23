@@ -3,7 +3,7 @@
 	<h2 v-else class="center">Distribution</h2>
 	<div class="flex wrap">
 		<div v-for="country in distribution" class="card mb-1">
-			<span :class="`flag-icon flag-` + country.code.toLowerCase()"></span>
+			<span :class="`flag-icon flag-` + country.code?.toLowerCase()"></span>
 			<span>
 				{{ country.name }}<small v-if="country.country"> ({{ country.country }})</small>
 			</span>
