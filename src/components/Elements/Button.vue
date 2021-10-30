@@ -1,10 +1,16 @@
 <template>
-	<a class="btn">{{ text }}</a>
+	<a class="btn">
+		{{ text }}
+		<div v-if="optText">
+			<small>{{ optText }}</small>
+		</div>
+	</a>
 </template>
 
 <script setup>
 defineProps({
 	text: String,
+	optText: String,
 });
 </script>
 
@@ -12,21 +18,18 @@ defineProps({
 .btn {
 	display: block;
 	flex-grow: 1;
-	color: #ffffff;
 	padding: 0.8rem;
-	font-size: 14px;
-	text-transform: uppercase;
+	color: #ffffff;
+	text-align: center;
+	border: 1px solid var(--success);
 	border-radius: 4px;
 	cursor: pointer;
-	border: 1px solid var(--main);
-	background-color: transparent;
 	user-select: none;
 }
 .btn:hover {
-	background-color: #ffffff0d;
-	filter: brightness(125%);
+	filter: brightness(120%);
 }
 .btn:active {
-	filter: brightness(150%);
+	filter: brightness(140%);
 }
 </style>

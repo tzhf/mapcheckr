@@ -1,13 +1,13 @@
 <template>
 	<div class="wrapper">
-		<div class="heading flex wrap space-between">
+		<div class="heading flex flex-center wrap space-between">
 			<h1>MapCheckr</h1>
-			<div v-if="!state.started" class="flex wrap gap">
+			<div v-if="!state.started" class="flex flex-center wrap gap">
 				<Button @click="loadFromClipboard" text="Load from clipboard" />
 				<input @change="loadFromJSON" type="file" id="file" class="input-file" accept="application/json" />
 				<label for="file" class="btn">Import JSON</label>
 			</div>
-			<div v-if="state.finished" class="flex wrap gap">
+			<div v-if="state.finished" class="flex flex-center wrap gap">
 				<Button @click="resetState" text="Reset" />
 			</div>
 		</div>
@@ -34,7 +34,7 @@
 						optText="only applies to locations pointing north by default"
 					/>
 					<div v-if="settings.adjustHeading" class="indent">
-						<label class="flex wrap">
+						<label class="flex flex-center wrap">
 							Heading deviation <input type="range" v-model.number="settings.headingDeviation" min="0" max="50" /> (+/- {{ settings.headingDeviation }}°)
 						</label>
 						<small>0° will point directly towards the road.</small>
@@ -43,7 +43,7 @@
 
 				<div class="mtb-2">
 					<Checkbox v-model:checked="settings.adjustPitch" label="Adjust pitch" optText="0 by default. -90° for tarmac/+90° for sky" />
-					<label v-if="settings.adjustPitch" class="flex wrap indent">
+					<label v-if="settings.adjustPitch" class="flex flex-center wrap indent">
 						Pitch deviation <input type="range" v-model.number="settings.pitchDeviation" min="-90" max="90" /> ({{ settings.pitchDeviation }}°)
 					</label>
 				</div>
@@ -62,7 +62,7 @@
 			</div>
 
 			<div v-if="state.started" class="container center">
-				<h2 v-if="!state.finished" class="flex wrap justify-center">Processing <Spinner /></h2>
+				<h2 v-if="!state.finished" class="flex wrap flex-center justify-center">Processing <Spinner /></h2>
 				<h2 v-else>Results</h2>
 				<p><Badge :text="state.step + '/' + customMap.nbLocs" /> {{ pluralize("location", customMap.nbLocs) }}</p>
 				<p><Badge :number="state.success" /> success</p>
@@ -74,17 +74,17 @@
 
 			<div v-if="state.finished" class="container">
 				<h2 class="center">Export</h2>
-				<div class="flex wrap space-between">
+				<div class="flex flex-center wrap space-between">
 					<h3 class="success">{{ resolvedLocs.length }} resolved {{ pluralize("location", resolvedLocs.length) }}</h3>
-					<div v-if="resolvedLocs.length" class="flex wrap gap">
+					<div v-if="resolvedLocs.length" class="flex flex-center wrap gap">
 						<Button @click="copyToClipboard(resolvedLocs)" text="Copy to Clipboard" />
 						<Button @click="exportToJsonFile(resolvedLocs)" text="Export as JSON" />
 					</div>
 				</div>
 				<hr />
-				<div class="flex wrap space-between">
+				<div class="flex flex-center wrap space-between">
 					<h3 :class="rejectedLocs.length ? 'danger' : 'success'">{{ rejectedLocs.length }} rejected {{ pluralize("location", rejectedLocs.length) }}</h3>
-					<div v-if="rejectedLocs.length" class="flex wrap gap">
+					<div v-if="rejectedLocs.length" class="flex flex-center wrap gap">
 						<Button @click="copyToClipboard(rejectedLocs)" text="Copy to Clipboard" />
 						<Button @click="exportToJsonFile(rejectedLocs, true)" text="Export as JSON" />
 					</div>
@@ -100,14 +100,14 @@
 
 <script setup>
 import { reactive, ref } from "vue";
-import Button from "./components/Elements/Button.vue";
-import Checkbox from "./components/Elements/Checkbox.vue";
-import Badge from "./components/Elements/Badge.vue";
-import Spinner from "./components/Elements/Spinner.vue";
+import Button from "@/components/Elements/Button.vue";
+import Checkbox from "@/components/Elements/Checkbox.vue";
+import Badge from "@/components/Elements/Badge.vue";
+import Spinner from "@/components/Elements/Spinner.vue";
 
-import Distribution from "./components/CountryDistribution.vue";
+import Distribution from "@/components/CountryDistribution.vue";
 
-import { SVreq } from "./SVreq";
+import { SVreq } from "@/utils/SVreq";
 
 const settings = reactive({
 	rejectUnofficial: true,
@@ -247,7 +247,6 @@ const copyToClipboard = (data) => {
 				customCoordinates: data,
 			})
 		)
-		.then(() => {})
 		.catch((err) => {
 			console.log("Something went wrong", err);
 		});
@@ -277,65 +276,7 @@ const pluralize = (text, count) => (count > 1 ? text + "s" : text);
 </script>
 
 <style>
-@import url("https://fonts.googleapis.com/css?family=Quicksand:400,700");
-:root {
-	--main: #0ebb93c5;
-	--success: #2cecbfc5;
-	--danger: #e66a6a;
-}
-*,
-*::before,
-*::after {
-	box-sizing: border-box;
-}
-body {
-	margin: 0 0.5em;
-	background-color: #242424;
-	font-family: "Quicksand", serif;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-	font-size: 15px;
-	color: #fff;
-}
-h1 {
-	font-size: 2.2rem;
-	line-height: 0.5em;
-}
-h1,
-h2 {
-	font-weight: 400;
-}
-h4 {
-	margin: 0;
-}
-h2 {
-	margin: 0 0 0.5rem 0;
-}
-p {
-	line-height: 1em;
-}
-.indent {
-	margin: 0.3em 0 0 1.6em;
-}
-hr {
-	height: 1px;
-	background-color: var(--main);
-	border: none;
-}
-select {
-	outline: 0;
-	overflow: hidden;
-	background: #292929;
-	color: #ffffff;
-	border: 1px solid var(--main);
-	padding: 5px 5px 5px 10px;
-	border-radius: 5px;
-	margin: 0 0.3em;
-	cursor: pointer;
-}
-select:hover {
-	filter: brightness(120%);
-}
+@import "@/assets/main.css";
 .wrapper {
 	margin: 0 auto;
 	max-width: 700px;
@@ -352,54 +293,5 @@ select:hover {
 	background: #3a3a3a;
 	padding: 0.5em 1em;
 	margin-bottom: 0.5em;
-}
-.flex {
-	display: flex;
-	align-items: center;
-}
-.justify-center {
-	justify-content: center;
-}
-.wrap {
-	flex-wrap: wrap;
-}
-.space-between {
-	justify-content: space-between;
-}
-.gap {
-	gap: 0.5rem;
-}
-.center {
-	text-align: center;
-}
-.small {
-	font-size: 0.8rem;
-}
-.mt-1 {
-	margin-top: 0.5rem;
-}
-.mb-1 {
-	margin-bottom: 0.2rem;
-}
-.mtb-2 {
-	margin: 1em 0 1em 0;
-}
-.success {
-	color: var(--success);
-}
-.bg-success {
-	background: var(--success);
-}
-.danger {
-	color: var(--danger);
-}
-.bg-danger {
-	background: var(--danger);
-}
-input[type="range"] {
-	margin: 0 0.5em;
-}
-.input-file {
-	display: none;
 }
 </style>

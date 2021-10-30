@@ -17,7 +17,7 @@ import { ref, toRefs, onMounted } from "vue";
 import Badge from "./Elements/Badge.vue";
 import Spinner from "./Elements/Spinner.vue";
 
-import { getCountryCode } from "getcountrycode";
+import { getCountryCode } from "get-country-code";
 
 const props = defineProps({
 	locations: Array,

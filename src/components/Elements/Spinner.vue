@@ -1,14 +1,30 @@
 <template>
-	<img alt="geoicon" src="@/assets/geoicon.png" />
+	<img alt="geoicon" :style="cssVars" src="@/assets/geoicon.png" />
 </template>
+<script>
+export default {
+	props: {
+		width: {
+			type: String,
+			default: "2rem",
+		},
+	},
 
+	computed: {
+		cssVars() {
+			return {
+				"--width": this.width,
+			};
+		},
+	},
+};
+</script>
 <style scoped>
 img {
 	margin-left: 0.3em;
-	width: 1.5em;
+	width: var(--width);
 	animation: spin 10s infinite ease-in-out;
 }
-
 @keyframes spin {
 	0% {
 		transform: rotate(0deg);

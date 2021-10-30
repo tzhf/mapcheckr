@@ -1,0 +1,139 @@
+@import url("https://fonts.googleapis.com/css?family=Quicksand:400,700");
+:root {
+	--success: #53e0aa;
+	--danger: #e66a6a;
+	--warning: #ffc72d;
+}
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+body {
+	margin: 0;
+	background-color: #242424;
+	font-family: "Quicksand", serif;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	font-size: 15px;
+	color: #fff;
+}
+h1 {
+	font-size: 2.2rem;
+	line-height: 0.5em;
+}
+h1,
+h2 {
+	font-weight: 400;
+}
+h2 {
+	margin: 0 0 0.5rem 0;
+}
+h4 {
+	margin: 0 0 0.5rem 0;
+}
+p {
+	line-height: 1em;
+}
+a {
+	color: var(--success);
+}
+hr {
+	height: 1px;
+	background-color: var(--success);
+	border: none;
+}
+input[type="range"] {
+	margin: 0 0.5em;
+}
+.input-file {
+	display: none;
+}
+select {
+	outline: 0;
+	overflow: hidden;
+	background: #292929;
+	color: #ffffff;
+	border: 1px solid var(--success);
+	border-radius: 5px;
+	cursor: pointer;
+}
+select {
+	margin: 0 0.3em;
+	padding: 0.2rem 0.2rem 0.2rem 0.8rem;
+}
+select:hover {
+	filter: brightness(120%);
+}
+.flex {
+	display: flex;
+}
+.flex-col {
+	flex-direction: column;
+}
+.flex-center {
+	align-items: center;
+}
+.justify-center {
+	justify-content: center;
+}
+.space-between {
+	justify-content: space-between;
+}
+.wrap {
+	flex-wrap: wrap;
+}
+.gap {
+	gap: 0.2rem;
+}
+.center {
+	text-align: center;
+}
+.indent {
+	margin: 0.3em 0 0 1.6em;
+}
+.small {
+	font-size: 0.8rem;
+}
+.mt-1 {
+	margin-top: 0.2rem;
+}
+.mb-1 {
+	margin-bottom: 0.2rem;
+}
+.ml-1 {
+	margin-left: 0.2rem;
+}
+.mtb-1 {
+	margin: 0.5rem 0;
+}
+.mtb-2 {
+	margin: 1rem 0;
+}
+.success {
+	color: var(--success);
+}
+.danger {
+	color: var(--danger);
+}
+.bg-success {
+	background: var(--success);
+}
+.bg-warning {
+	background: var(--warning);
+}
+.bg-danger {
+	background: var(--danger);
+}
+::-webkit-scrollbar {
+	width: 1rem;
+}
+::-webkit-scrollbar-track {
+	background: #2c2c2c;
+}
+::-webkit-scrollbar-thumb {
+	background: var(--success);
+}
+::-webkit-scrollbar-thumb:hover {
+	background: var(--success);
+}

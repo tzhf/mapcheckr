@@ -29,7 +29,7 @@ defineProps({
 	grid-template-columns: -webkit-min-content auto;
 	grid-template-columns: min-content auto;
 	grid-gap: 0.3em;
-	color: var(--main);
+	color: var(--success);
 	align-items: center;
 }
 .checkbox:hover {
