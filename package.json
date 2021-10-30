@@ -8,7 +8,6 @@
 	},
 	"dependencies": {
 		"get-country-code": "git+https://github.com/tzhf/get-country-code.git",
-		"leaflet": "^1.7.1",
 		"vue": "^3.2.16"
 	},
 	"devDependencies": {
