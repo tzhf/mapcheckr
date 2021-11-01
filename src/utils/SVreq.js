@@ -8,7 +8,7 @@ export function SVreq(loc, settings) {
 			if (settings.rejectUnofficial && res.links.length == 0) return reject({ ...loc, reason: "no link found" });
 			if (settings.rejectByYear && parseInt(res.imageDate.split("-")[0]) < settings.minYear) return reject({ ...loc, reason: "too old" });
 			if (settings.adjustHeading && res.links.length && loc.heading == 0) {
-				loc.heading = parseInt(res.links[0]?.heading) + randomInRange(-settings.headingDeviation, settings.headingDeviation);
+				loc.heading = parseInt(res.links[0].heading) + randomInRange(-settings.headingDeviation, settings.headingDeviation);
 			}
 			if (settings.adjustPitch) {
 				loc.pitch = settings.pitchDeviation;
