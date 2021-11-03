@@ -36,6 +36,9 @@
 					<hr />
 				</div>
 
+				<Checkbox v-model:checked="settings.fixMisplaced" label="Fix misplaced locations" optText="Some of your locations might slightly change" />
+				<hr />
+
 				<Checkbox
 					v-model:checked="settings.adjustHeading"
 					label="Adjust heading towards the road"
@@ -120,6 +123,7 @@ const settings = reactive({
 	radius: 50,
 	rejectUnofficial: true,
 	rejectNoDescription: false,
+	fixMisplaced: false,
 	adjustHeading: true,
 	headingDeviation: 0,
 	adjustPitch: false,

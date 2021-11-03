@@ -9,13 +9,17 @@ export default function SVreq(loc, settings) {
 				if (res.links.length == 0) return reject({ ...loc, reason: "no link found" });
 				if (settings.rejectNoDescription && !res.location.description && !res.location.shortDescription) return reject({ ...loc, reason: "no description" });
 			}
+			if (Date.parse(res.imageDate) < Date.parse(settings.fromDate) || Date.parse(res.imageDate) > Date.parse(settings.toDate))
+				return reject({ ...loc, reason: "out of date" });
 			if (settings.adjustHeading && res.links.length > 0 && loc.heading == 0) {
 				loc.heading = parseInt(res.links[0].heading) + randomInRange(-settings.headingDeviation, settings.headingDeviation);
 			}
-			if (Date.parse(res.imageDate) < Date.parse(settings.fromDate) || Date.parse(res.imageDate) > Date.parse(settings.toDate))
-				return reject({ ...loc, reason: "out of date" });
 			if (settings.adjustPitch) {
 				loc.pitch = settings.pitchDeviation;
+			}
+			if (settings.fixMisplaced) {
+				loc.lat = res.location.latLng.lat();
+				loc.lng = res.location.latLng.lng();
 			}
 			resolve(loc);
 		}).catch((e) => reject({ loc, reason: e.message }));
