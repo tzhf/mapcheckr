@@ -23,41 +23,45 @@
 			</div>
 
 			<div v-if="!state.started" class="container">
-				<div class="mtb-2">
-					<Checkbox v-model:checked="settings.rejectUnofficial" label="Reject unofficial" optText="Uncheck for photospheres map" />
+				Radius <input type="number" v-model.number="settings.radius" @input="handleRadiusInput" /> m<br />
+				<small> Radius in which to search for a panorama.<br /> </small>
+				<hr />
+
+				<Checkbox v-model:checked="settings.rejectUnofficial" label="Reject unofficial" optText="Uncheck for photospheres map" />
+				<hr />
+
+				<div v-if="settings.rejectUnofficial">
+					<Checkbox v-model:checked="settings.rejectNoDescription" label="Reject locations without description" />
+					<small>This might prevent trekkers in most cases, but can reject regular streetview without description</small>
+					<hr />
 				</div>
 
-				<div class="mtb-2">
-					<Checkbox
-						v-model:checked="settings.adjustHeading"
-						label="Adjust heading towards the road"
-						optText="only applies to locations pointing north by default"
-					/>
-					<div v-if="settings.adjustHeading" class="indent">
-						<label class="flex flex-center wrap">
-							Heading deviation <input type="range" v-model.number="settings.headingDeviation" min="0" max="50" /> (+/- {{ settings.headingDeviation }}°)
-						</label>
-						<small>0° will point directly towards the road.</small>
-					</div>
-				</div>
-
-				<div class="mtb-2">
-					<Checkbox v-model:checked="settings.adjustPitch" label="Adjust pitch" optText="0 by default. -90° for tarmac/+90° for sky" />
-					<label v-if="settings.adjustPitch" class="flex flex-center wrap indent">
-						Pitch deviation <input type="range" v-model.number="settings.pitchDeviation" min="-90" max="90" /> ({{ settings.pitchDeviation }}°)
+				<Checkbox
+					v-model:checked="settings.adjustHeading"
+					label="Adjust heading towards the road"
+					optText="only applies to locations pointing north by default"
+				/>
+				<div v-if="settings.adjustHeading" class="indent">
+					<label class="flex flex-center wrap">
+						Heading deviation <input type="range" v-model.number="settings.headingDeviation" min="0" max="50" /> (+/- {{ settings.headingDeviation }}°)
 					</label>
+					<small>0° will point directly towards the road.</small>
 				</div>
+				<hr />
 
-				<div class="mtb-2">
-					<Checkbox v-model:checked="settings.rejectByYear" label="Reject by year" />
-					<div v-if="settings.rejectByYear" class="indent">
-						Reject locations older than
-						<select v-model.number="settings.minYear">
-							<option v-for="n in 14">{{ 2007 + n }}</option>
-						</select>
-						<br />
-						<small>&lt; 2008 is the best compromise to get rid of most of the gen 1 without rejecting early gen 2 (eg. whole Germany coverage)</small>
-					</div>
+				<Checkbox v-model:checked="settings.adjustPitch" label="Adjust pitch" optText="0 by default. -90° for tarmac/+90° for sky" />
+				<label v-if="settings.adjustPitch" class="flex flex-center wrap indent">
+					Pitch deviation <input type="range" v-model.number="settings.pitchDeviation" min="-90" max="90" /> ({{ settings.pitchDeviation }}°)
+				</label>
+				<hr />
+
+				<div class="flex space-between">
+					<label>From</label>
+					<input type="month" v-model="settings.fromDate" min="2007-01" :max="dateToday" />
+				</div>
+				<div class="flex space-between mtb-1">
+					<label>To</label>
+					<input type="month" v-model="settings.toDate" :max="dateToday" />
 				</div>
 			</div>
 
@@ -69,7 +73,8 @@
 				<p><Badge changeClass :number="state.notFound" /> streetview not found</p>
 				<p><Badge changeClass :number="state.unofficial" /> unofficial</p>
 				<p><Badge changeClass :number="state.brokenLinks" /> broken links</p>
-				<p><Badge changeClass :number="state.blurry" /> older than {{ settings.minYear }}</p>
+				<p><Badge changeClass :number="state.noDescription" /> no description (potential trekker)</p>
+				<p><Badge changeClass :number="state.outOfDate" /> doesn't match date criteria</p>
 			</div>
 
 			<div v-if="state.finished" class="container">
@@ -107,16 +112,20 @@ import Spinner from "@/components/Elements/Spinner.vue";
 
 import Distribution from "@/components/CountryDistribution.vue";
 
-import { SVreq } from "@/utils/SVreq";
+import SVreq from "@/utils/SVreq";
+
+const dateToday = new Date().getFullYear() + "-" + (new Date().getMonth() + 1);
 
 const settings = reactive({
+	radius: 50,
 	rejectUnofficial: true,
-	adjustHeading: false,
+	rejectNoDescription: false,
+	adjustHeading: true,
 	headingDeviation: 0,
 	adjustPitch: false,
 	pitchDeviation: 0,
-	rejectByYear: false,
-	minYear: 2008,
+	fromDate: "2008-01",
+	toDate: dateToday,
 });
 
 const initialState = {
@@ -127,8 +136,9 @@ const initialState = {
 	success: 0,
 	notFound: 0,
 	unofficial: 0,
+	noDescription: 0,
 	brokenLinks: 0,
-	blurry: 0,
+	outOfDate: 0,
 };
 
 const state = reactive({ ...initialState });
@@ -155,6 +165,16 @@ const handleClickStart = () => {
 	start();
 };
 
+// TODO better input validation
+const handleRadiusInput = (e) => {
+	const value = parseInt(e.target.value);
+	if (value < 10) {
+		settings.radius = 10;
+	} else if (value > 1000) {
+		settings.radius = 1000;
+	}
+};
+
 Array.prototype.chunk = function (n) {
 	if (!this.length) {
 		return [];
@@ -179,11 +199,14 @@ const start = async () => {
 					case "unofficial coverage":
 						state.unofficial++;
 						break;
+					case "no description":
+						state.noDescription++;
+						break;
 					case "no link found":
 						state.brokenLinks++;
 						break;
-					case "too old":
-						state.blurry++;
+					case "out of date":
+						state.outOfDate++;
 						break;
 				}
 			}
