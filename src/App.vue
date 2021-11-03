@@ -23,7 +23,7 @@
 			</div>
 
 			<div v-if="!state.started" class="container">
-				Radius <input type="number" v-model.number="settings.radius" @input="handleRadiusInput" /> m<br />
+				Radius <input type="number" v-model.number="settings.radius" @change="handleRadiusInput" /> m<br />
 				<small> Radius in which to search for a panorama.<br /> </small>
 				<hr />
 
@@ -168,7 +168,7 @@ const handleClickStart = () => {
 // TODO better input validation
 const handleRadiusInput = (e) => {
 	const value = parseInt(e.target.value);
-	if (value < 10) {
+	if (!value || value < 10) {
 		settings.radius = 10;
 	} else if (value > 1000) {
 		settings.radius = 1000;
@@ -285,7 +285,7 @@ const exportToJsonFile = (data, isRejected = false) => {
 				customCoordinates: data,
 			})
 		);
-	const fileName = `${customMap.value.name ? customMap.value.name : "Custom Map"} - ${isRejected ? "rejected" : "resolved"} ${data.length} ${pluralize(
+	const fileName = `${customMap.value.name ? customMap.value.name : "Custom Map"} - ${data.length} ${isRejected ? "rejected" : "resolved"} ${pluralize(
 		"location",
 		data.length
 	)}.json`;
