@@ -14,7 +14,7 @@ export default function SVreq(loc, settings) {
 			if (settings.adjustHeading && res.links.length > 0 && loc.heading == 0) {
 				loc.heading = parseInt(res.links[0].heading) + randomInRange(-settings.headingDeviation, settings.headingDeviation);
 			}
-			if (settings.adjustPitch) {
+			if (settings.adjustPitch && loc.pitch == 0) {
 				loc.pitch = settings.pitchDeviation;
 			}
 			if (settings.fixMisplaced) {

@@ -32,7 +32,10 @@
 
 				<div v-if="settings.rejectUnofficial">
 					<Checkbox v-model:checked="settings.rejectNoDescription" label="Reject locations without description" />
-					<small>This might prevent trekkers in most cases, but can reject regular streetview without description</small>
+					<small
+						>This might prevent trekkers in most cases, but can reject regular streetview without description (eg. Mongolia/South Korea mostly don't have
+						description)</small
+					>
 					<hr />
 				</div>
 
@@ -84,7 +87,7 @@
 				<p><Badge changeClass :number="state.brokenLinks" /> broken links</p>
 				<p><Badge changeClass :number="state.noDescription" /> no description (potential trekker)</p>
 				<p><Badge changeClass :number="state.outOfDate" /> doesn't match date criteria</p>
-				<p><Badge changeClass :number="state.toClose" /> within the same ({{ settings.nearbyRadius }} m) radius</p>
+				<p v-if="settings.removeNearby"><Badge changeClass :number="state.toClose" /> within the same ({{ settings.nearbyRadius }} m) radius</p>
 			</div>
 
 			<div v-if="state.finished" class="container">
@@ -137,7 +140,7 @@ const settings = reactive({
 	pitchDeviation: 0,
 	fromDate: "2008-01",
 	toDate: dateToday,
-	removeNearby: true,
+	removeNearby: false,
 	nearbyRadius: 10,
 });
 
