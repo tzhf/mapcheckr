@@ -137,8 +137,8 @@ const settings = reactive({
 	pitchDeviation: 0,
 	fromDate: "2008-01",
 	toDate: dateToday,
-	removeNearby: false,
-	nearbyRadius: 50,
+	removeNearby: true,
+	nearbyRadius: 10,
 });
 
 const initialState = {
