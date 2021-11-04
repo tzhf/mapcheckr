@@ -39,8 +39,8 @@
 				<Checkbox v-model:checked="settings.fixMisplaced" label="Fix misplaced locations" optText="Some of your locations might slightly change" />
 				<hr />
 
-				<div class="flex-center">
-					<Checkbox v-model:checked="settings.removeNearby" label="Reject locations within the same" optText="" />
+				<div class="flex-center wrap">
+					<Checkbox v-model:checked="settings.removeNearby" label="Reject location if there's already one within a " optText="" />
 					<input type="number" v-model.number="settings.nearbyRadius" @change="handleNearbyRadiusInput" />m radius
 				</div>
 				<hr />
