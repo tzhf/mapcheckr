@@ -1,13 +1,13 @@
 <template>
 	<div class="wrapper">
-		<div class="heading flex flex-center wrap space-between">
+		<div class="heading flex-center wrap space-between">
 			<h1>MapCheckr</h1>
-			<div v-if="!state.started" class="flex flex-center wrap gap">
+			<div v-if="!state.started" class="flex-center wrap gap">
 				<Button @click="loadFromClipboard" text="Load from clipboard" />
 				<input @change="loadFromJSON" type="file" id="file" class="input-file" accept="application/json" />
 				<label for="file" class="btn">Import JSON</label>
 			</div>
-			<div v-if="state.finished" class="flex flex-center wrap gap">
+			<div v-if="state.finished" class="flex-center wrap gap">
 				<Button @click="resetState" text="Reset" />
 			</div>
 		</div>
@@ -23,7 +23,7 @@
 			</div>
 
 			<div v-if="!state.started" class="container">
-				Radius <input type="number" v-model.number="settings.radius" @change="handleRadiusInput" /> m<br />
+				Radius<input type="number" v-model.number="settings.radius" @change="handleRadiusInput" />m<br />
 				<small> Radius in which to search for a panorama.<br /> </small>
 				<hr />
 
@@ -39,13 +39,19 @@
 				<Checkbox v-model:checked="settings.fixMisplaced" label="Fix misplaced locations" optText="Some of your locations might slightly change" />
 				<hr />
 
+				<div class="flex-center">
+					<Checkbox v-model:checked="settings.removeNearby" label="Reject locations within the same" optText="" />
+					<input type="number" v-model.number="settings.nearbyRadius" @change="handleNearbyRadiusInput" />m radius
+				</div>
+				<hr />
+
 				<Checkbox
 					v-model:checked="settings.adjustHeading"
 					label="Adjust heading towards the road"
 					optText="only applies to locations pointing north by default"
 				/>
 				<div v-if="settings.adjustHeading" class="indent">
-					<label class="flex flex-center wrap">
+					<label class="flex-center wrap">
 						Heading deviation <input type="range" v-model.number="settings.headingDeviation" min="0" max="50" /> (+/- {{ settings.headingDeviation }}°)
 					</label>
 					<small>0° will point directly towards the road.</small>
@@ -53,7 +59,7 @@
 				<hr />
 
 				<Checkbox v-model:checked="settings.adjustPitch" label="Adjust pitch" optText="0 by default. -90° for tarmac/+90° for sky" />
-				<label v-if="settings.adjustPitch" class="flex flex-center wrap indent">
+				<label v-if="settings.adjustPitch" class="flex-center wrap indent">
 					Pitch deviation <input type="range" v-model.number="settings.pitchDeviation" min="-90" max="90" /> ({{ settings.pitchDeviation }}°)
 				</label>
 				<hr />
@@ -78,21 +84,22 @@
 				<p><Badge changeClass :number="state.brokenLinks" /> broken links</p>
 				<p><Badge changeClass :number="state.noDescription" /> no description (potential trekker)</p>
 				<p><Badge changeClass :number="state.outOfDate" /> doesn't match date criteria</p>
+				<p><Badge changeClass :number="state.toClose" /> within the same ({{ settings.nearbyRadius }} m) radius</p>
 			</div>
 
 			<div v-if="state.finished" class="container">
 				<h2 class="center">Export</h2>
-				<div class="flex flex-center wrap space-between">
+				<div class="flex-center wrap space-between">
 					<h3 class="success">{{ resolvedLocs.length }} resolved {{ pluralize("location", resolvedLocs.length) }}</h3>
-					<div v-if="resolvedLocs.length" class="flex flex-center wrap gap">
+					<div v-if="resolvedLocs.length" class="flex-center wrap gap">
 						<Button @click="copyToClipboard(resolvedLocs)" text="Copy to Clipboard" />
 						<Button @click="exportToJsonFile(resolvedLocs)" text="Export as JSON" />
 					</div>
 				</div>
 				<hr />
-				<div class="flex flex-center wrap space-between">
+				<div class="flex-center wrap space-between">
 					<h3 :class="rejectedLocs.length ? 'danger' : 'success'">{{ rejectedLocs.length }} rejected {{ pluralize("location", rejectedLocs.length) }}</h3>
-					<div v-if="rejectedLocs.length" class="flex flex-center wrap gap">
+					<div v-if="rejectedLocs.length" class="flex-center wrap gap">
 						<Button @click="copyToClipboard(rejectedLocs)" text="Copy to Clipboard" />
 						<Button @click="exportToJsonFile(rejectedLocs, true)" text="Export as JSON" />
 					</div>
@@ -130,6 +137,8 @@ const settings = reactive({
 	pitchDeviation: 0,
 	fromDate: "2008-01",
 	toDate: dateToday,
+	removeNearby: false,
+	nearbyRadius: 50,
 });
 
 const initialState = {
@@ -143,6 +152,7 @@ const initialState = {
 	noDescription: 0,
 	brokenLinks: 0,
 	outOfDate: 0,
+	toClose: 0,
 };
 
 const state = reactive({ ...initialState });
@@ -150,7 +160,7 @@ const state = reactive({ ...initialState });
 const customMap = ref({});
 
 let mapToCheck = [];
-const resolvedLocs = [];
+let resolvedLocs = [];
 const rejectedLocs = [];
 
 const resetState = () => {
@@ -169,13 +179,21 @@ const handleClickStart = () => {
 	start();
 };
 
-// TODO better input validation
 const handleRadiusInput = (e) => {
 	const value = parseInt(e.target.value);
 	if (!value || value < 10) {
 		settings.radius = 10;
 	} else if (value > 1000) {
 		settings.radius = 1000;
+	}
+};
+
+const handleNearbyRadiusInput = (e) => {
+	const value = parseInt(e.target.value);
+	if (!value || value < 1) {
+		settings.nearbyRadius = 1;
+	} else if (value > 10000000) {
+		settings.nearbyRadius = 10000000;
 	}
 };
 
@@ -216,6 +234,12 @@ const start = async () => {
 			}
 			state.step++;
 		}
+	}
+	if (settings.removeNearby) {
+		const newArr = removeNearby(resolvedLocs, settings.nearbyRadius);
+		state.toClose = resolvedLocs.length - newArr.length;
+		resolvedLocs.length = 0;
+		resolvedLocs.push(...newArr);
 	}
 	state.finished = true;
 };
@@ -297,6 +321,26 @@ const exportToJsonFile = (data, isRejected = false) => {
 	linkElement.setAttribute("href", dataUri);
 	linkElement.setAttribute("download", fileName);
 	linkElement.click();
+};
+
+const removeNearby = (arr, radius) => {
+	const newArr = [];
+	arr.forEach((point) => {
+		const hasClosePoint = newArr.some((found) => haversineDistance({ lat: point.lat, lng: point.lng }, { lat: found.lat, lng: found.lng }) < radius);
+		if (!hasClosePoint) newArr.push(point);
+	});
+	return newArr;
+};
+
+const haversineDistance = (mk1, mk2) => {
+	const R = 6371.071;
+	const rlat1 = mk1.lat * (Math.PI / 180);
+	const rlat2 = mk2.lat * (Math.PI / 180);
+	const difflat = rlat2 - rlat1;
+	const difflon = (mk2.lng - mk1.lng) * (Math.PI / 180);
+	const km =
+		2 * R * Math.asin(Math.sqrt(Math.sin(difflat / 2) * Math.sin(difflat / 2) + Math.cos(rlat1) * Math.cos(rlat2) * Math.sin(difflon / 2) * Math.sin(difflon / 2)));
+	return km * 1000;
 };
 
 const pluralize = (text, count) => (count > 1 ? text + "s" : text);
