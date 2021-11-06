@@ -87,7 +87,7 @@
 				<p><Badge changeClass :number="state.brokenLinks" /> broken links</p>
 				<p><Badge changeClass :number="state.noDescription" /> no description (potential trekker)</p>
 				<p><Badge changeClass :number="state.outOfDate" /> doesn't match date criteria</p>
-				<p v-if="settings.removeNearby"><Badge changeClass :number="state.toClose" /> within the same ({{ settings.nearbyRadius }} m) radius</p>
+				<p v-if="settings.removeNearby"><Badge changeClass :number="state.tooClose" /> within the same ({{ settings.nearbyRadius }} m) radius</p>
 			</div>
 
 			<div v-if="state.finished" class="container">
@@ -95,16 +95,18 @@
 				<div class="flex-center wrap space-between">
 					<h3 class="success">{{ resolvedLocs.length }} resolved {{ pluralize("location", resolvedLocs.length) }}</h3>
 					<div v-if="resolvedLocs.length" class="flex-center wrap gap">
-						<Button @click="copyToClipboard(resolvedLocs)" text="Copy to Clipboard" />
-						<Button @click="exportToJsonFile(resolvedLocs)" text="Export as JSON" />
+						<CopyToClipboard :customMap="customMap" :data="resolvedLocs" />
+						<ExportToJSON :customMap="customMap" :data="resolvedLocs" />
+						<ExportToCSV :customMap="customMap" :data="resolvedLocs" />
 					</div>
 				</div>
 				<hr />
 				<div class="flex-center wrap space-between">
 					<h3 :class="rejectedLocs.length ? 'danger' : 'success'">{{ rejectedLocs.length }} rejected {{ pluralize("location", rejectedLocs.length) }}</h3>
 					<div v-if="rejectedLocs.length" class="flex-center wrap gap">
-						<Button @click="copyToClipboard(rejectedLocs)" text="Copy to Clipboard" />
-						<Button @click="exportToJsonFile(rejectedLocs, true)" text="Export as JSON" />
+						<CopyToClipboard :customMap="customMap" :data="rejectedLocs" />
+						<ExportToJSON :customMap="customMap" :data="rejectedLocs" isRejected />
+						<ExportToCSV :customMap="customMap" :data="rejectedLocs" isRejected />
 					</div>
 				</div>
 			</div>
@@ -123,6 +125,9 @@ import Checkbox from "@/components/Elements/Checkbox.vue";
 import Badge from "@/components/Elements/Badge.vue";
 import Spinner from "@/components/Elements/Spinner.vue";
 
+import CopyToClipboard from "@/components/CopyToClipboard.vue";
+import ExportToJSON from "@/components/ExportToJSON.vue";
+import ExportToCSV from "./components/ExportToCSV.vue";
 import Distribution from "@/components/CountryDistribution.vue";
 
 import SVreq from "@/utils/SVreq";
@@ -155,7 +160,7 @@ const initialState = {
 	noDescription: 0,
 	brokenLinks: 0,
 	outOfDate: 0,
-	toClose: 0,
+	tooClose: 0,
 };
 
 const state = reactive({ ...initialState });
@@ -240,7 +245,7 @@ const start = async () => {
 	}
 	if (settings.removeNearby) {
 		const newArr = removeNearby(resolvedLocs, settings.nearbyRadius);
-		state.toClose = resolvedLocs.length - newArr.length;
+		state.tooClose = resolvedLocs.length - newArr.length;
 		resolvedLocs.length = 0;
 		resolvedLocs.push(...newArr);
 	}
@@ -289,41 +294,6 @@ const checkJSON = (data) => {
 		state.loaded = false;
 		error.value = "Invalid map data";
 	}
-};
-
-// Export
-const copyToClipboard = (data) => {
-	navigator.clipboard
-		.writeText(
-			JSON.stringify({
-				name: customMap.value.name,
-				description: customMap.value.description,
-				customCoordinates: data,
-			})
-		)
-		.catch((err) => {
-			console.log("Something went wrong", err);
-		});
-};
-
-const exportToJsonFile = (data, isRejected = false) => {
-	const dataUri =
-		"data:application/json;charset=utf-8," +
-		encodeURIComponent(
-			JSON.stringify({
-				name: customMap.value.name,
-				description: customMap.value.description,
-				customCoordinates: data,
-			})
-		);
-	const fileName = `${customMap.value.name ? customMap.value.name : "Custom Map"} - ${data.length} ${isRejected ? "rejected" : "resolved"} ${pluralize(
-		"location",
-		data.length
-	)}.json`;
-	const linkElement = document.createElement("a");
-	linkElement.setAttribute("href", dataUri);
-	linkElement.setAttribute("download", fileName);
-	linkElement.click();
 };
 
 const removeNearby = (arr, radius) => {

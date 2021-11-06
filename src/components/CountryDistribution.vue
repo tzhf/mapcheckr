@@ -13,7 +13,7 @@
 </template>
 
 <script setup>
-import { ref, toRefs, onMounted } from "vue";
+import { ref, onMounted } from "vue";
 import Badge from "./Elements/Badge.vue";
 import Spinner from "./Elements/Spinner.vue";
 
@@ -22,13 +22,12 @@ import { getCountryCode } from "get-country-code";
 const props = defineProps({
 	locations: Array,
 });
-const { locations } = toRefs(props);
 
 const distribution = ref([]);
 const loading = ref(true);
 
 onMounted(() => {
-	getDistribution(locations.value);
+	getDistribution(props.locations);
 });
 
 const getDistribution = async (locations) => {
@@ -45,6 +44,7 @@ const getDistribution = async (locations) => {
 	loading.value = false;
 };
 </script>
+
 <style>
 @import "../assets/flags/flag-icon.min.css";
 .card {
