@@ -84,7 +84,6 @@
 				<p><Badge :number="state.success" /> success</p>
 				<p><Badge changeClass :number="state.notFound" /> streetview not found</p>
 				<p><Badge changeClass :number="state.unofficial" /> unofficial</p>
-				<p><Badge changeClass :number="state.brokenLinks" /> broken links</p>
 				<p><Badge changeClass :number="state.noDescription" /> no description (potential trekker)</p>
 				<p><Badge changeClass :number="state.outOfDate" /> doesn't match date criteria</p>
 				<p v-if="settings.removeNearby"><Badge changeClass :number="state.tooClose" /> within the same ({{ settings.nearbyRadius }} m) radius</p>
