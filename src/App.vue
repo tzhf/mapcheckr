@@ -131,7 +131,7 @@ import Distribution from "@/components/CountryDistribution.vue";
 
 import SVreq from "@/utils/SVreq";
 
-const dateToday = new Date().getFullYear() + "-" + (new Date().getMonth() + 1);
+const dateToday = new Date().getFullYear() + "-" + ("0" + (new Date().getMonth() + 1)).slice(-2);
 
 const settings = reactive({
 	radius: 50,
