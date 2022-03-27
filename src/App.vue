@@ -39,6 +39,9 @@
 					<hr />
 				</div>
 
+				<Checkbox v-model:checked="settings.rejectGen1" label="Reject gen 1 coverage" />
+				<hr />
+
 				<Checkbox v-model:checked="settings.fixMisplaced" label="Fix misplaced locations" optText="Some of your locations might slightly change" />
 				<hr />
 
@@ -85,6 +88,7 @@
 				<p><Badge changeClass :number="state.notFound" /> streetview not found</p>
 				<p><Badge changeClass :number="state.unofficial" /> unofficial</p>
 				<p><Badge changeClass :number="state.noDescription" /> no description (potential trekker)</p>
+				<p><Badge changeClass :number="state.gen1" /> blurry gen 1</p>
 				<p><Badge changeClass :number="state.outOfDate" /> doesn't match date criteria</p>
 				<p v-if="settings.removeNearby"><Badge changeClass :number="state.tooClose" /> within the same ({{ settings.nearbyRadius }} m) radius</p>
 			</div>
@@ -137,6 +141,7 @@ const settings = reactive({
 	radius: 50,
 	rejectUnofficial: true,
 	rejectNoDescription: false,
+	rejectGen1: true,
 	fixMisplaced: false,
 	adjustHeading: true,
 	headingDeviation: 0,
@@ -157,6 +162,7 @@ const initialState = {
 	notFound: 0,
 	unofficial: 0,
 	noDescription: 0,
+	gen1: 0,
 	brokenLinks: 0,
 	outOfDate: 0,
 	tooClose: 0,
@@ -230,6 +236,9 @@ const start = async () => {
 						break;
 					case "no description":
 						state.noDescription++;
+						break;
+					case "blurry gen 1":
+						state.gen1++;
 						break;
 					case "no link found":
 						state.brokenLinks++;
