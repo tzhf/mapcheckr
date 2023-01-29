@@ -16,8 +16,6 @@
 			<div v-if="error" class="container center danger">{{ error }}</div>
 
 			<div v-if="state.loaded" class="container center">
-				<h2 v-if="customMap.name">{{ customMap.name }}</h2>
-				<p v-if="customMap.description" class="small">{{ customMap.description }}</p>
 				<h4>{{ customMap.nbLocs }} imported {{ pluralize("location", customMap.nbLocs) }}</h4>
 				<Button v-if="!state.started" @click="handleClickStart" class="mt-1" text="Start checking" />
 			</div>
@@ -27,43 +25,47 @@
 				<small> Radius in which to search for a panorama.<br /> </small>
 				<hr />
 
-				<Checkbox v-model:checked="settings.rejectUnofficial" label="Reject unofficial" optText="Uncheck for photospheres map" />
+				<Checkbox v-model:checked="settings.rejectUnofficial" label="Reject unofficial"
+					optText="Uncheck for photospheres map" />
 				<hr />
 
 				<div v-if="settings.rejectUnofficial">
-					<Checkbox v-model:checked="settings.rejectNoDescription" label="Reject locations without description" />
-					<small
-						>This might prevent trekkers in most cases, but can reject regular streetview without description (eg. Mongolia/South Korea mostly don't have
-						description)</small
-					>
+					<Checkbox v-model:checked="settings.rejectNoDescription"
+						label="Reject locations without description" />
+					<small>This might prevent trekkers in most cases, but can reject regular streetview without
+						description (eg. Mongolia/South Korea mostly don't have
+						description)</small>
 					<hr />
 				</div>
 
-				<Checkbox v-model:checked="settings.fixMisplaced" label="Fix misplaced locations" optText="Some of your locations might slightly change" />
+				<Checkbox v-model:checked="settings.fixMisplaced" label="Fix misplaced locations"
+					optText="Some of your locations might slightly change" />
 				<hr />
 
 				<div class="flex-center wrap">
-					<Checkbox v-model:checked="settings.removeNearby" label="Reject location if there's already one within a " optText="" />
-					<input type="number" v-model.number="settings.nearbyRadius" @change="handleNearbyRadiusInput" />m radius
+					<Checkbox v-model:checked="settings.removeNearby"
+						label="Reject location if there's already one within a " optText="" />
+					<input type="number" v-model.number="settings.nearbyRadius" @change="handleNearbyRadiusInput" />m
+					radius
 				</div>
 				<hr />
 
-				<Checkbox
-					v-model:checked="settings.adjustHeading"
-					label="Adjust heading towards the road"
-					optText="only applies to locations pointing north by default"
-				/>
+				<Checkbox v-model:checked="settings.adjustHeading" label="Adjust heading towards the road"
+					optText="only applies to locations pointing north by default" />
 				<div v-if="settings.adjustHeading" class="indent">
 					<label class="flex-center wrap">
-						Heading deviation <input type="range" v-model.number="settings.headingDeviation" min="0" max="50" /> (+/- {{ settings.headingDeviation }}°)
+						Heading deviation <input type="range" v-model.number="settings.headingDeviation" min="0"
+							max="50" /> (+/- {{ settings.headingDeviation }}°)
 					</label>
 					<small>0° will point directly towards the road.</small>
 				</div>
 				<hr />
 
-				<Checkbox v-model:checked="settings.adjustPitch" label="Adjust pitch" optText="0 by default. -90° for tarmac/+90° for sky" />
+				<Checkbox v-model:checked="settings.adjustPitch" label="Adjust pitch"
+					optText="0 by default. -90° for tarmac/+90° for sky" />
 				<label v-if="settings.adjustPitch" class="flex-center wrap indent">
-					Pitch deviation <input type="range" v-model.number="settings.pitchDeviation" min="-90" max="90" /> ({{ settings.pitchDeviation }}°)
+					Pitch deviation <input type="range" v-model.number="settings.pitchDeviation" min="-90" max="90" />
+					({{ settings.pitchDeviation }}°)
 				</label>
 				<hr />
 
@@ -78,21 +80,40 @@
 			</div>
 
 			<div v-if="state.started" class="container center">
-				<h2 v-if="!state.finished" class="flex wrap flex-center justify-center">Processing <Spinner /></h2>
+				<h2 v-if="!state.finished" class="flex wrap flex-center justify-center">Processing
+					<Spinner />
+				</h2>
 				<h2 v-else>Results</h2>
-				<p><Badge :text="state.step + '/' + customMap.nbLocs" /> {{ pluralize("location", customMap.nbLocs) }}</p>
-				<p><Badge :number="state.success" /> success</p>
-				<p><Badge changeClass :number="state.notFound" /> streetview not found</p>
-				<p><Badge changeClass :number="state.unofficial" /> unofficial</p>
-				<p><Badge changeClass :number="state.noDescription" /> no description (potential trekker)</p>
-				<p><Badge changeClass :number="state.outOfDate" /> doesn't match date criteria</p>
-				<p v-if="settings.removeNearby"><Badge changeClass :number="state.tooClose" /> within the same ({{ settings.nearbyRadius }} m) radius</p>
+				<p>
+					<Badge :text="state.step + '/' + customMap.nbLocs" /> {{ pluralize("location", customMap.nbLocs) }}
+				</p>
+				<p>
+					<Badge :number="state.success" /> success
+				</p>
+				<p>
+					<Badge changeClass :number="state.notFound" /> streetview not found
+				</p>
+				<p>
+					<Badge changeClass :number="state.unofficial" /> unofficial
+				</p>
+				<p>
+					<Badge changeClass :number="state.noDescription" /> no description (potential trekker)
+				</p>
+				<p>
+					<Badge changeClass :number="state.outOfDate" /> doesn't match date criteria
+				</p>
+				<p v-if="settings.removeNearby">
+					<Badge changeClass :number="state.tooClose" /> within the same ({{ settings.nearbyRadius }} m)
+					radius
+				</p>
 			</div>
 
 			<div v-if="state.finished" class="container">
 				<h2 class="center">Export</h2>
 				<div class="flex-center wrap space-between">
-					<h3 class="success">{{ resolvedLocs.length }} resolved {{ pluralize("location", resolvedLocs.length) }}</h3>
+					<h3 class="success">{{ resolvedLocs.length }} resolved {{
+						pluralize("location", resolvedLocs.length)
+					}}</h3>
 					<div v-if="resolvedLocs.length" class="flex-center wrap gap">
 						<CopyToClipboard :customMap="customMap" :data="resolvedLocs" />
 						<ExportToJSON :customMap="customMap" :data="resolvedLocs" />
@@ -101,7 +122,9 @@
 				</div>
 				<hr />
 				<div class="flex-center wrap space-between">
-					<h3 :class="rejectedLocs.length ? 'danger' : 'success'">{{ rejectedLocs.length }} rejected {{ pluralize("location", rejectedLocs.length) }}</h3>
+					<h3 :class="rejectedLocs.length ? 'danger' : 'success'">{{ rejectedLocs.length }} rejected {{
+						pluralize("location", rejectedLocs.length)
+					}}</h3>
 					<div v-if="rejectedLocs.length" class="flex-center wrap gap">
 						<CopyToClipboard :customMap="customMap" :data="rejectedLocs" />
 						<ExportToJSON :customMap="customMap" :data="rejectedLocs" isRejected />
@@ -277,17 +300,23 @@ const readFile = (file) => {
 	reader.readAsText(file);
 };
 
+const hasLatLng = (objectArray) => objectArray.every(obj => obj.hasOwnProperty('lat')) && objectArray.every(obj => obj.hasOwnProperty('lng'));
+
 const checkJSON = (data) => {
 	try {
-		const mapData = JSON.parse(data);
-		if (!mapData?.customCoordinates?.length) {
+		let mapData = JSON.parse(data);
+		if (mapData.hasOwnProperty('customCoordinates')) {
+			mapData = [...mapData.customCoordinates];
+		}
+		if (!hasLatLng(mapData)) {
 			error.value = "Invalid map data";
 			state.loaded = false;
 			return;
 		}
+
 		error.value = "";
-		customMap.value = { name: mapData.name, description: mapData.description, nbLocs: mapData.customCoordinates.length };
-		mapToCheck = mapData.customCoordinates;
+		customMap.value = { nbLocs: mapData.length };
+		mapToCheck = mapData;
 		state.loaded = true;
 	} catch (err) {
 		state.loaded = false;
@@ -320,10 +349,12 @@ const pluralize = (text, count) => (count > 1 ? text + "s" : text);
 
 <style>
 @import "@/assets/main.css";
+
 .wrapper {
 	margin: 0 auto;
 	max-width: 700px;
 }
+
 .wrapper__innner {
 	border-radius: 0.25rem;
 	box-shadow: 0 20px 40px -14px #00000066;
@@ -332,6 +363,7 @@ const pluralize = (text, count) => (count > 1 ? text + "s" : text);
 	padding: 0.5rem 0.5rem 0 0.5rem;
 	background-color: #303030;
 }
+
 .container {
 	background: #3a3a3a;
 	padding: 0.5em 1em;

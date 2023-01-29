@@ -5,7 +5,7 @@ export default function SVreq(loc, settings) {
 		let callback = (res, status) => {
 			if (status != google.maps.StreetViewStatus.OK) return reject({ ...loc, reason: "sv not found" });
 			if (settings.rejectUnofficial) {
-				if (res.location.pano.length != 22) return reject({ ...loc, reason: "unofficial coverage"  });
+				if (res.location.pano.length != 22) return reject({ ...loc, reason: "unofficial coverage" });
 				if (settings.rejectNoDescription && !res.location.description && !res.location.shortDescription) return reject({ ...loc, reason: "no description" });
 			}
 			if (Date.parse(res.imageDate) < Date.parse(settings.fromDate) || Date.parse(res.imageDate) > Date.parse(settings.toDate))
@@ -21,11 +21,10 @@ export default function SVreq(loc, settings) {
 				loc.lng = res.location.latLng.lng();
 			}
 			resolve(loc);
-		}
-		if(!loc.panoId){
+		};
+		if (!loc.panoId) {
 			await SV.getPanoramaByLocation(new google.maps.LatLng(loc.lat, loc.lng), settings.radius, callback).catch((e) => reject({ loc, reason: e.message }));
-		}
-		else{
+		} else {
 			await SV.getPanoramaById(loc.panoId, callback).catch((e) => reject({ loc, reason: e.message }));
 		}
 	});
