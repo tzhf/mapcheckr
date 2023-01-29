@@ -38,6 +38,9 @@
 					<hr />
 				</div>
 
+				<Checkbox v-model:checked="settings.rejectGen1" label="Reject gen 1 coverage" />
+				<hr />
+
 				<Checkbox v-model:checked="settings.fixMisplaced" label="Fix misplaced locations"
 					optText="Some of your locations might slightly change" />
 				<hr />
@@ -160,6 +163,7 @@ const settings = reactive({
 	radius: 50,
 	rejectUnofficial: true,
 	rejectNoDescription: false,
+	rejectGen1: true,
 	fixMisplaced: false,
 	adjustHeading: true,
 	headingDeviation: 0,
@@ -180,6 +184,7 @@ const initialState = {
 	notFound: 0,
 	unofficial: 0,
 	noDescription: 0,
+	gen1: 0,
 	brokenLinks: 0,
 	outOfDate: 0,
 	tooClose: 0,
@@ -253,6 +258,9 @@ const start = async () => {
 						break;
 					case "no description":
 						state.noDescription++;
+						break;
+					case "blurry gen 1":
+						state.gen1++;
 						break;
 					case "no link found":
 						state.brokenLinks++;
