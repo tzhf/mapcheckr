@@ -15,13 +15,7 @@ const text = ref("Clipboard");
 
 const copyToClipboard = () => {
 	navigator.clipboard
-		.writeText(
-			JSON.stringify({
-				name: props.customMap.name,
-				description: props.customMap.description,
-				customCoordinates: props.data,
-			})
-		)
+		.writeText(JSON.stringify(props.data))
 		.then(() => {
 			text.value = "Copied";
 			setTimeout(() => {

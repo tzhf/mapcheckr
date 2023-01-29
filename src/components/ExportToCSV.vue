@@ -15,9 +15,7 @@ const exportToCSV = () => {
 	let csv = "";
 	props.data.forEach((location) => (csv += location.lat + "," + location.lng + ",\n"));
 	const dataUri = "data:text/csv;charset=utf-8," + encodeURIComponent(csv);
-	const fileName = `${props.customMap.name ? props.customMap.name : "Custom Map"} - ${props.data.length} ${props.isRejected ? "rejected" : "resolved"} location${
-		props.data.length > 1 ? "s" : ""
-	}.csv`;
+	const fileName = `${props.data.length} ${props.isRejected ? "rejected" : "resolved"} location${props.data.length > 1 ? "s" : ""}.csv`;
 	const linkElement = document.createElement("a");
 	linkElement.href = dataUri;
 	linkElement.download = fileName;
