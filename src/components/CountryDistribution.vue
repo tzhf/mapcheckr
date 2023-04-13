@@ -1,5 +1,7 @@
 <template>
-	<h2 v-if="loading" class="flex wrap justify-center">Calculating distribution <Spinner /></h2>
+	<h2 v-if="loading" class="flex wrap justify-center">Calculating distribution
+		<Spinner />
+	</h2>
 	<h2 v-else class="center">Distribution</h2>
 	<div class="flex wrap">
 		<div v-for="country in distribution" class="card mb-1">
@@ -47,6 +49,7 @@ const getDistribution = async (locations) => {
 
 <style>
 @import "../assets/flags/flag-icon.min.css";
+
 .card {
 	flex-basis: 100%;
 	display: flex;
