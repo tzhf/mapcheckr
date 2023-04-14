@@ -30,8 +30,7 @@
 				<hr />
 
 				<div v-if="settings.rejectUnofficial">
-					<Checkbox v-model:checked="settings.rejectNoDescription"
-						label="Reject locations without description" />
+					<Checkbox v-model:checked="settings.rejectNoDescription" label="Reject locations without description" />
 					<small>This might prevent trekkers in most cases, but can reject regular streetview without
 						description (eg. Mongolia/South Korea mostly don't have
 						description)</small>
@@ -57,8 +56,8 @@
 					optText="only applies to locations pointing north by default" />
 				<div v-if="settings.adjustHeading" class="indent">
 					<label class="flex-center wrap">
-						Heading deviation <input type="range" v-model.number="settings.headingDeviation" min="0"
-							max="50" /> (+/- {{ settings.headingDeviation }}°)
+						Heading deviation <input type="range" v-model.number="settings.headingDeviation" min="0" max="50" />
+						(+/- {{ settings.headingDeviation }}°)
 					</label>
 					<small>0° will point directly towards the road.</small>
 				</div>
@@ -103,7 +102,13 @@
 					<Badge changeClass :number="state.noDescription" /> no description (potential trekker)
 				</p>
 				<p>
+					<Badge changeClass :number="state.gen1" /> gen 1
+				</p>
+				<p>
 					<Badge changeClass :number="state.outOfDate" /> doesn't match date criteria
+				</p>
+				<p>
+					<Badge changeClass :number="state.brokenLinks" /> broken links
 				</p>
 				<p v-if="settings.removeNearby">
 					<Badge changeClass :number="state.tooClose" /> within the same ({{ settings.nearbyRadius }} m)
@@ -116,27 +121,82 @@
 				<div class="flex-center wrap space-between">
 					<h3 class="success">{{ resolvedLocs.length }} resolved {{
 						pluralize("location", resolvedLocs.length)
-					}}</h3>
+					}} ({{
+	(resolvedLocs.length / customMap.nbLocs) * 100 }}%)</h3>
 					<div v-if="resolvedLocs.length" class="flex-center wrap gap">
 						<CopyToClipboard :customMap="customMap" :data="resolvedLocs" />
 						<ExportToJSON :customMap="customMap" :data="resolvedLocs" />
 						<ExportToCSV :customMap="customMap" :data="resolvedLocs" />
 					</div>
 				</div>
+
 				<hr />
 				<div class="flex-center wrap space-between">
-					<h3 :class="rejectedLocs.length ? 'danger' : 'success'">{{ rejectedLocs.length }} rejected {{
-						pluralize("location", rejectedLocs.length)
-					}}</h3>
-					<div v-if="rejectedLocs.length" class="flex-center wrap gap">
-						<CopyToClipboard :customMap="customMap" :data="rejectedLocs" />
-						<ExportToJSON :customMap="customMap" :data="rejectedLocs" isRejected />
-						<ExportToCSV :customMap="customMap" :data="rejectedLocs" isRejected />
+					<h3 class="danger">{{ allRejectedLocs.length }} rejected locations ({{
+						((allRejectedLocs.length / customMap.nbLocs) * 100).toFixed(2) }}%)</h3>
+					<div class="flex-center wrap gap">
+						<CopyToClipboard :customMap="customMap" :data="allRejectedLocs" />
+						<ExportToJSON :customMap="customMap" :data="allRejectedLocs" isRejected />
+						<ExportToCSV :customMap="customMap" :data="allRejectedLocs" isRejected />
+					</div>
+				</div>
+				<div v-if="rejectedLocs.SVNotFound.length" class="flex-center wrap space-between">
+					<h3 class="danger"> - {{ rejectedLocs.SVNotFound.length }} SV not found ({{
+						((rejectedLocs.SVNotFound.length / customMap.nbLocs) * 100).toFixed(2) }}%)</h3>
+					<div class="flex-center wrap gap">
+						<CopyToClipboard :customMap="customMap" :data="rejectedLocs.SVNotFound" />
+						<ExportToJSON :customMap="customMap" :data="rejectedLocs.SVNotFound" isRejected />
+						<ExportToCSV :customMap="customMap" :data="rejectedLocs.SVNotFound" isRejected />
+					</div>
+				</div>
+				<div v-if="rejectedLocs.unofficial.length" class="flex-center wrap space-between">
+					<h3 class="danger"> - {{ rejectedLocs.unofficial.length }} unofficial ({{
+						((rejectedLocs.unofficial.length / customMap.nbLocs) * 100).toFixed(2) }}%)</h3>
+					<div class="flex-center wrap gap">
+						<CopyToClipboard :customMap="customMap" :data="rejectedLocs.unofficial" />
+						<ExportToJSON :customMap="customMap" :data="rejectedLocs.unofficial" isRejected />
+						<ExportToCSV :customMap="customMap" :data="rejectedLocs.unofficial" isRejected />
+					</div>
+				</div>
+				<div v-if="rejectedLocs.noDescription.length" class="flex-center wrap space-between">
+					<h3 class="danger"> - {{ rejectedLocs.noDescription.length }} no description (potential trekker) ({{
+						((rejectedLocs.noDescription.length / customMap.nbLocs) * 100).toFixed(2) }}%)</h3>
+					<div class="flex-center wrap gap">
+						<CopyToClipboard :customMap="customMap" :data="rejectedLocs.noDescription" />
+						<ExportToJSON :customMap="customMap" :data="rejectedLocs.noDescription" isRejected />
+						<ExportToCSV :customMap="customMap" :data="rejectedLocs.noDescription" isRejected />
+					</div>
+				</div>
+				<div v-if="rejectedLocs.gen1.length" class="flex-center wrap space-between">
+					<h3 class="danger"> - {{ rejectedLocs.gen1.length }} gen 1 ({{
+						((rejectedLocs.gen1.length / customMap.nbLocs) * 100).toFixed(2) }}%)</h3>
+					<div class="flex-center wrap gap">
+						<CopyToClipboard :customMap="customMap" :data="rejectedLocs.gen1" />
+						<ExportToJSON :customMap="customMap" :data="rejectedLocs.gen1" isRejected />
+						<ExportToCSV :customMap="customMap" :data="rejectedLocs.gen1" isRejected />
+					</div>
+				</div>
+				<div v-if="rejectedLocs.outOfDate.length" class="flex-center wrap space-between">
+					<h3 class="danger"> - {{ rejectedLocs.outOfDate.length }} doesn't match date criteria ({{
+						((rejectedLocs.outOfDate.length / customMap.nbLocs) * 100).toFixed(2) }}%)</h3>
+					<div class="flex-center wrap gap">
+						<CopyToClipboard :customMap="customMap" :data="rejectedLocs.outOfDate" />
+						<ExportToJSON :customMap="customMap" :data="rejectedLocs.outOfDate" isRejected />
+						<ExportToCSV :customMap="customMap" :data="rejectedLocs.outOfDate" isRejected />
+					</div>
+				</div>
+				<div v-if="rejectedLocs.brokenLinks.length" class="flex-center wrap space-between">
+					<h3 class="danger"> - {{ rejectedLocs.brokenLinks.length }} broken links ({{
+						((rejectedLocs.brokenLinks.length / customMap.nbLocs) * 100).toFixed(2) }}%)</h3>
+					<div class="flex-center wrap gap">
+						<CopyToClipboard :customMap="customMap" :data="rejectedLocs.brokenLinks" />
+						<ExportToJSON :customMap="customMap" :data="rejectedLocs.brokenLinks" isRejected />
+						<ExportToCSV :customMap="customMap" :data="rejectedLocs.brokenLinks" isRejected />
 					</div>
 				</div>
 			</div>
 
-			<div v-if="state.finished && resolvedLocs.length" class="container">
+			<div v-if="state.finished && resolvedLocs.length > 0" class="container">
 				<Distribution :locations="resolvedLocs" />
 			</div>
 		</div>
@@ -185,8 +245,8 @@ const initialState = {
 	unofficial: 0,
 	noDescription: 0,
 	gen1: 0,
-	brokenLinks: 0,
 	outOfDate: 0,
+	brokenLinks: 0,
 	tooClose: 0,
 };
 
@@ -196,14 +256,16 @@ const customMap = ref({});
 
 let mapToCheck = [];
 let resolvedLocs = [];
-const rejectedLocs = [];
+let rejectedLocs = { SVNotFound: [], unofficial: [], noDescription: [], gen1: [], outOfDate: [], brokenLinks: [], };
+let allRejectedLocs = [];
 
 const resetState = () => {
 	Object.assign(state, initialState);
 	customMap.value = {};
 	mapToCheck.length = 0;
 	resolvedLocs.length = 0;
-	rejectedLocs.length = 0;
+	rejectedLocs = { SVNotFound: [], unofficial: [], noDescription: [], gen1: [], outOfDate: [], brokenLinks: [], };
+	allRejectedLocs.length = 0;
 };
 
 const error = ref("");
@@ -248,24 +310,29 @@ const start = async () => {
 				resolvedLocs.push(response.value);
 				state.success++;
 			} else {
-				rejectedLocs.push(response.reason);
 				switch (response.reason.reason) {
 					case "sv not found":
+						rejectedLocs.SVNotFound.push(response.reason);
 						state.notFound++;
 						break;
 					case "unofficial coverage":
+						rejectedLocs.unofficial.push(response.reason);
 						state.unofficial++;
 						break;
 					case "no description":
+						rejectedLocs.noDescription.push(response.reason);
 						state.noDescription++;
 						break;
 					case "blurry gen 1":
+						rejectedLocs.gen1.push(response.reason);
 						state.gen1++;
 						break;
 					case "no link found":
+						rejectedLocs.brokenLinks.push(response.reason);
 						state.brokenLinks++;
 						break;
 					case "out of date":
+						rejectedLocs.outOfDate.push(response.reason);
 						state.outOfDate++;
 						break;
 				}
@@ -279,6 +346,16 @@ const start = async () => {
 		resolvedLocs.length = 0;
 		resolvedLocs.push(...newArr);
 	}
+
+	allRejectedLocs = [
+		...rejectedLocs.SVNotFound,
+		...rejectedLocs.unofficial,
+		...rejectedLocs.noDescription,
+		...rejectedLocs.gen1,
+		...rejectedLocs.outOfDate,
+		...rejectedLocs.brokenLinks
+	]
+
 	state.finished = true;
 };
 
