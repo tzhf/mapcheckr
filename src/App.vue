@@ -122,7 +122,7 @@
 					<h3 class="success">{{ resolvedLocs.length }} resolved {{
 						pluralize("location", resolvedLocs.length)
 					}} ({{
-	(resolvedLocs.length / customMap.nbLocs) * 100 }}%)</h3>
+	((resolvedLocs.length / customMap.nbLocs) * 100).toFixed(2) }}%)</h3>
 					<div v-if="resolvedLocs.length" class="flex-center wrap gap">
 						<CopyToClipboard :customMap="customMap" :data="resolvedLocs" />
 						<ExportToJSON :customMap="customMap" :data="resolvedLocs" />
