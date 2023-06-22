@@ -30,7 +30,6 @@ export default function SVreq(loc, settings) {
                 loc.lng = res.location.latLng.lng();
             }
             if (settings.getLatestPano) {
-                console.log(res.time);
                 loc.panoId = res.time[res.time.length - 1].pano;
             }
             resolve(loc);
