@@ -71,6 +71,12 @@
 				</label>
 				<hr />
 
+				<Checkbox v-model:checked="settings.getLatestPano" label="Update coverage" />
+				<label class="flex-center wrap indent">
+					Update your locations to the most recent coverage. Also useful to automatically panoID your map.
+				</label>
+				<hr />
+
 				<div class="flex space-between">
 					<label>From</label>
 					<input type="month" v-model="settings.fromDate" min="2007-01" :max="dateToday" />
@@ -233,6 +239,7 @@ const settings = reactive({
 	toDate: dateToday,
 	removeNearby: false,
 	nearbyRadius: 10,
+	getLatestPano: false
 });
 
 const initialState = {
