@@ -22,7 +22,7 @@
 
 			<div v-if="!state.started" class="container">
 				Radius<input type="number" v-model.number="settings.radius" @change="handleRadiusInput" />m<br />
-				<small> Radius in which to search for a panorama.<br /> </small>
+				<small>Radius in which to search for a panorama.</small>
 				<hr />
 
 				<Checkbox v-model:checked="settings.rejectUnofficial" label="Reject unofficial"
@@ -30,10 +30,10 @@
 				<hr />
 
 				<div v-if="settings.rejectUnofficial">
-					<Checkbox v-model:checked="settings.rejectNoDescription" label="Reject locations without description" />
-					<small>This might prevent trekkers in most cases, but can reject regular streetview without
-						description (eg. Mongolia/South Korea mostly don't have
-						description)</small>
+					<Checkbox v-model:checked="settings.rejectNoDescription" label="Reject locations without description"
+						optText="This might prevent trekkers in most cases, but can reject regular streetview without
+						description (eg. Mongolia/South Korea don't have any
+						description)" />
 					<hr />
 				</div>
 
@@ -44,39 +44,48 @@
 					optText="Some of your locations might slightly change" />
 				<hr />
 
+				<Checkbox v-model:checked="settings.getLatestPano" label="Update coverage"
+					optText="Update your locations to the most recent coverage. Also useful to automatically panoID your map." />
+				<hr />
+
 				<div class="flex-center wrap">
-					<Checkbox v-model:checked="settings.removeNearby"
-						label="Reject location if there's already one within a " optText="" />
+					<Checkbox v-model:checked="settings.removeNearby" label="Reject duplicates within a " optText="" />
 					<input type="number" v-model.number="settings.nearbyRadius" @change="handleNearbyRadiusInput" />m
 					radius
 				</div>
 				<hr />
 
-				<Checkbox v-model:checked="settings.adjustHeading" label="Adjust heading towards the road"
-					optText="only applies to locations pointing north by default" />
-				<div v-if="settings.adjustHeading" class="indent">
+				<h3>Headings</h3>
+				<Checkbox @change="settings.setHeading ? settings.updateHeading = false : true"
+					v-model:checked="settings.setHeading" label="Set heading for unpanned locations" />
+				<hr />
+				<Checkbox @change="settings.updateHeading ? settings.setHeading = false : true"
+					v-model:checked="settings.updateHeading" label="Update all headings"
+					optText="Enable only if you want to update ALL your headings" />
+				<hr />
+
+				<div v-if="settings.setHeading || settings.updateHeading">
 					<label class="flex-center wrap">
-						Heading deviation <input type="range" v-model.number="settings.headingDeviation" min="0" max="50" />
+						Random heading deviation <input type="range" v-model.number="settings.headingDeviation" min="0"
+							max="180" />
 						(+/- {{ settings.headingDeviation }}°)
 					</label>
 					<small>0° will point directly towards the road.</small>
+					<hr />
 				</div>
+
+				<Checkbox v-model:checked="settings.adjustPitch" label="Adjust pitch" optText="" />
+				<div v-if="settings.adjustPitch" class="indent">
+					<label class="flex-center wrap ">
+						Pitch deviation <input type="range" v-model.number="settings.pitchDeviation" min="-90" max="90" />
+						({{ settings.pitchDeviation }}°)
+					</label>
+					<small>0 by default. -90° for tarmac/+90° for sky</small>
+				</div>
+
 				<hr />
 
-				<Checkbox v-model:checked="settings.adjustPitch" label="Adjust pitch"
-					optText="0 by default. -90° for tarmac/+90° for sky" />
-				<label v-if="settings.adjustPitch" class="flex-center wrap indent">
-					Pitch deviation <input type="range" v-model.number="settings.pitchDeviation" min="-90" max="90" />
-					({{ settings.pitchDeviation }}°)
-				</label>
-				<hr />
-
-				<Checkbox v-model:checked="settings.getLatestPano" label="Update coverage" />
-				<label class="flex-center wrap indent">
-					Update your locations to the most recent coverage. Also useful to automatically panoID your map.
-				</label>
-				<hr />
-
+				<h3>Filter by date</h3>
 				<div class="flex space-between">
 					<label>From</label>
 					<input type="month" v-model="settings.fromDate" min="2007-01" :max="dateToday" />
@@ -231,10 +240,11 @@ const settings = reactive({
 	rejectNoDescription: false,
 	rejectGen1: true,
 	fixMisplaced: false,
-	adjustHeading: true,
+	setHeading: true,
+	updateHeading: false,
 	headingDeviation: 0,
 	adjustPitch: false,
-	pitchDeviation: 0,
+	pitchDeviation: 10,
 	fromDate: "2008-01",
 	toDate: dateToday,
 	removeNearby: false,
@@ -330,7 +340,7 @@ const start = async () => {
 						rejectedLocs.noDescription.push(response.reason);
 						state.noDescription++;
 						break;
-					case "blurry gen 1":
+					case "gen 1":
 						rejectedLocs.gen1.push(response.reason);
 						state.gen1++;
 						break;
@@ -444,7 +454,7 @@ const pluralize = (text, count) => (count > 1 ? text + "s" : text);
 
 .wrapper {
 	margin: 0 auto;
-	max-width: 700px;
+	max-width: 940px;
 }
 
 .wrapper__innner {
