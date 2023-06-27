@@ -22,7 +22,8 @@ export default function SVreq(loc, settings) {
                 return reject({ ...loc, reason: "out of date" });
             }
 
-            if (res.links.length === 0) return reject({ ...loc, reason: "no link found" });
+            // To check, returns broken links for panoID locations
+            // if (res.links.length === 0) return reject({ ...loc, reason: "no link found" });
 
             if (settings.setHeading && loc.heading === 0) {
                 loc.heading =
