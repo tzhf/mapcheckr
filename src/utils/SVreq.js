@@ -35,19 +35,18 @@ export default function SVreq(loc, settings) {
             }
 
             if (settings.updateHeading) {
-                const nearestHeading = getNearestHeading(res.links, loc.heading);
                 if (settings.randomHeadingDeviation) {
-                    loc.heading = nearestHeading + randomInRange(-settings.headingDeviation, settings.headingDeviation);
+                    loc.heading =
+                        getNearestHeading(res.links, loc.heading) +
+                        randomInRange(-settings.headingDeviation, settings.headingDeviation);
                 } else {
-                    loc.heading = getNearestHeading(
-                        [
-                            {
-                                heading: nearestHeading + settings.headingDeviation,
-                                heading: nearestHeading - settings.headingDeviation,
-                            },
-                        ],
-                        loc.heading
-                    );
+                    const arr = res.links.flatMap((link) => [
+                        link.heading + settings.headingDeviation,
+                        link.heading - settings.headingDeviation,
+                    ]);
+
+                    const newHeading = closest(arr, loc.heading);
+                    loc.heading = newHeading;
                 }
             }
 
@@ -77,6 +76,8 @@ export default function SVreq(loc, settings) {
     });
 }
 const randomSign = () => (Math.random() >= 0.5 ? 1 : -1);
+
+const closest = (arr, num) => arr.reduce((a, b) => (Math.abs(b - num) < Math.abs(a - num) ? b : a));
 
 const difference = (a, b) => {
     const d = Math.abs(a - b);
