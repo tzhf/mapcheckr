@@ -26,9 +26,12 @@ export default function SVreq(loc, settings) {
             // if (res.links.length === 0) return reject({ ...loc, reason: "no link found" });
 
             if (settings.setHeading && loc.heading === 0) {
-                loc.heading =
-                    parseInt(res.links[0].heading) +
-                    randomInRange(-settings.headingDeviation, settings.headingDeviation);
+                loc.heading = parseInt(res.links[0].heading);
+                if (settings.randomHeadingDeviation) {
+                    loc.heading += randomInRange(-settings.headingDeviation, settings.headingDeviation);
+                } else {
+                    loc.heading += randomSign() * settings.headingDeviation;
+                }
             }
 
             if (settings.updateHeading) {
