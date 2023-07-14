@@ -66,11 +66,11 @@
 
 				<div v-if="settings.setHeading || settings.updateHeading">
 					<label class="flex-center wrap">
-						Random heading deviation <input type="range" v-model.number="settings.headingDeviation" min="0"
-							max="180" />
+						Heading deviation <input type="range" v-model.number="settings.headingDeviation" min="0" max="90" />
 						(+/- {{ settings.headingDeviation }}°)
 					</label>
 					<small>0° will point directly towards the road.</small>
+					<Checkbox v-model:checked="settings.randomHeadingDeviation" label="Randomize in range" />
 					<hr />
 				</div>
 
@@ -243,6 +243,7 @@ const settings = reactive({
 	setHeading: true,
 	updateHeading: false,
 	headingDeviation: 0,
+	randomHeadingDeviation: false,
 	adjustPitch: false,
 	pitchDeviation: 10,
 	fromDate: "2008-01",

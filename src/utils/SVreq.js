@@ -32,9 +32,12 @@ export default function SVreq(loc, settings) {
             }
 
             if (settings.updateHeading) {
-                loc.heading =
-                    getNearestHeading(res.links, loc.heading) +
-                    randomInRange(-settings.headingDeviation, settings.headingDeviation);
+                loc.heading = getNearestHeading(res.links, loc.heading);
+                if (settings.randomHeadingDeviation) {
+                    loc.heading += randomInRange(-settings.headingDeviation, settings.headingDeviation);
+                } else {
+                    loc.heading += randomSign() * settings.headingDeviation;
+                }
             }
 
             if (settings.adjustPitch) {
@@ -62,6 +65,7 @@ export default function SVreq(loc, settings) {
         }
     });
 }
+const randomSign = () => (Math.random() >= 0.5 ? 1 : -1);
 
 const difference = (a, b) => {
     const d = Math.abs(a - b);
