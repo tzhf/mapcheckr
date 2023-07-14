@@ -78,8 +78,6 @@ export default function SVreq(loc, settings) {
 }
 const randomSign = () => (Math.random() >= 0.5 ? 1 : -1);
 
-const closest = (arr, num) => arr.reduce((a, b) => (Math.abs(b - num) < Math.abs(a - num) ? b : a));
-
 const difference = (a, b) => {
     const d = Math.abs(a - b);
     return d > 180 ? 360 - d : d;
