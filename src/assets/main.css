@@ -1,170 +1,171 @@
 @import url("https://fonts.googleapis.com/css?family=Quicksand:400,700");
 :root {
-	--success: #5ee6b2;
-	--danger: #e66a6a;
-	--warning: #ffc72d;
+    --success: #5ee6b2;
+    --danger: #e66a6a;
+    --warning: #ffc72d;
 }
 *,
 *::before,
 *::after {
-	box-sizing: border-box;
+    box-sizing: border-box;
 }
 body {
-	margin: 0;
-	background-color: #242424;
-	font-family: "Quicksand", serif;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-	font-size: 15px;
-	color: #fff;
+    margin: 0;
+    background-color: #242424;
+    font-family: "Quicksand", serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-size: 15px;
+    color: #fff;
 }
 h1 {
-	font-size: 2.2rem;
-	line-height: 0.5em;
+    font-size: 2.2rem;
+    line-height: 0.5em;
 }
 h1,
 h2 {
-	font-weight: 400;
+    font-weight: 400;
 }
 h2 {
-	margin: 0 0 0.5rem 0;
+    margin: 0 0 0.5rem 0;
 }
 h4 {
-	margin: 0 0 0.5rem 0;
+    margin: 0 0 0.5rem 0;
 }
 p {
-	line-height: 1em;
+    line-height: 1em;
 }
 a {
-	color: var(--success);
+    color: var(--success);
 }
 hr {
-	height: 1px;
-	background-color: var(--success);
-	border: none;
+    height: 1px;
+    background-color: var(--success);
+    border: none;
 }
 input[type="range"] {
-	margin: 0 0.5em;
+    margin: 0 0.5em;
+    width: 200px;
 }
 .input-file {
-	display: none;
+    display: none;
 }
 select {
-	outline: 0;
-	overflow: hidden;
-	background: #292929;
-	color: #ffffff;
-	border: 1px solid var(--success);
-	border-radius: 5px;
-	cursor: pointer;
+    outline: 0;
+    overflow: hidden;
+    background: #292929;
+    color: #ffffff;
+    border: 1px solid var(--success);
+    border-radius: 5px;
+    cursor: pointer;
 }
 select {
-	margin: 0 0.3em;
-	padding: 0.2rem 0.2rem 0.2rem 0.8rem;
+    margin: 0 0.3em;
+    padding: 0.2rem 0.2rem 0.2rem 0.8rem;
 }
 select:hover {
-	filter: brightness(120%);
+    filter: brightness(120%);
 }
 input[type="number"] {
-	width: 3rem;
-	margin: 0 0.3rem;
-	padding: 0.18rem 0rem;
-	background: #292929;
-	color: #ffffff;
-	text-align: center;
-	border-radius: 5px;
-	border: 1px solid var(--success);
-	overflow: hidden;
-	outline: 0;
-	cursor: pointer;
-	-moz-appearance: textfield;
+    width: 3rem;
+    margin: 0 0.3rem;
+    padding: 0.18rem 0rem;
+    background: #292929;
+    color: #ffffff;
+    text-align: center;
+    border-radius: 5px;
+    border: 1px solid var(--success);
+    overflow: hidden;
+    outline: 0;
+    cursor: pointer;
+    -moz-appearance: textfield;
 }
 input[type="number"]:hover {
-	filter: brightness(120%);
+    filter: brightness(120%);
 }
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
-	-webkit-appearance: none;
-	margin: 0;
+    -webkit-appearance: none;
+    margin: 0;
 }
 hr {
-	/* width: 85%; */
-	height: 1px;
-	margin: 1rem 0;
-	background-color: var(--success);
-	border: none;
+    /* width: 85%; */
+    height: 1px;
+    margin: 1rem 0;
+    background-color: var(--success);
+    border: none;
 }
 .flex {
-	display: flex;
+    display: flex;
 }
 .flex-col {
-	display: flex;
-	flex-direction: column;
+    display: flex;
+    flex-direction: column;
 }
 .flex-center {
-	display: flex;
-	align-items: center;
+    display: flex;
+    align-items: center;
 }
 .justify-center {
-	justify-content: center;
+    justify-content: center;
 }
 .space-between {
-	justify-content: space-between;
+    justify-content: space-between;
 }
 .wrap {
-	flex-wrap: wrap;
+    flex-wrap: wrap;
 }
 .gap {
-	gap: 0.2rem;
+    gap: 0.2rem;
 }
 .center {
-	text-align: center;
+    text-align: center;
 }
 .indent {
-	margin: 0.3em 0 0 1.6em;
+    margin: 0.3em 0 0 1.6em;
 }
 .small {
-	font-size: 0.8rem;
+    font-size: 0.8rem;
 }
 .mt-1 {
-	margin-top: 0.2rem;
+    margin-top: 0.2rem;
 }
 .mb-1 {
-	margin-bottom: 0.2rem;
+    margin-bottom: 0.2rem;
 }
 .ml-1 {
-	margin-left: 0.2rem;
+    margin-left: 0.2rem;
 }
 .mtb-1 {
-	margin: 0.5rem 0;
+    margin: 0.5rem 0;
 }
 .mtb-2 {
-	margin: 1rem 0;
+    margin: 1rem 0;
 }
 .success {
-	color: var(--success);
+    color: var(--success);
 }
 .danger {
-	color: var(--danger);
+    color: var(--danger);
 }
 .bg-success {
-	background: var(--success);
+    background: var(--success);
 }
 .bg-warning {
-	background: var(--warning);
+    background: var(--warning);
 }
 .bg-danger {
-	background: var(--danger);
+    background: var(--danger);
 }
 ::-webkit-scrollbar {
-	width: 1rem;
+    width: 1rem;
 }
 ::-webkit-scrollbar-track {
-	background: #2c2c2c;
+    background: #2c2c2c;
 }
 ::-webkit-scrollbar-thumb {
-	background: var(--success);
+    background: var(--success);
 }
 ::-webkit-scrollbar-thumb:hover {
-	background: var(--success);
+    background: var(--success);
 }

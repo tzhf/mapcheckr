@@ -66,7 +66,8 @@
 
 				<div v-if="settings.setHeading || settings.updateHeading">
 					<label class="flex-center wrap">
-						Heading deviation <input type="range" v-model.number="settings.headingDeviation" min="0" max="90" />
+						Heading deviation <input type="range" v-model.number="settings.headingDeviation" min="0" max="90"
+							step="1" />
 						(+/- {{ settings.headingDeviation }}°)
 					</label>
 					<small>0° will point directly towards the road.</small>
@@ -77,7 +78,8 @@
 				<Checkbox v-model:checked="settings.adjustPitch" label="Adjust pitch" optText="" />
 				<div v-if="settings.adjustPitch" class="indent">
 					<label class="flex-center wrap ">
-						Pitch deviation <input type="range" v-model.number="settings.pitchDeviation" min="-90" max="90" />
+						Pitch deviation <input type="range" v-model.number="settings.pitchDeviation" min="-90" max="90"
+							step="1" />
 						({{ settings.pitchDeviation }}°)
 					</label>
 					<small>0 by default. -90° for tarmac/+90° for sky</small>
@@ -245,7 +247,7 @@ const settings = reactive({
 	headingDeviation: 0,
 	randomHeadingDeviation: false,
 	adjustPitch: false,
-	pitchDeviation: 10,
+	pitchDeviation: 0,
 	fromDate: "2008-01",
 	toDate: dateToday,
 	removeNearby: false,
