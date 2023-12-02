@@ -22,19 +22,24 @@ export default function SVreq(loc, settings) {
                 return reject({ ...loc, reason: "out of date" });
             }
 
-            // To check, returns broken links for panoID locations
-            // if (res.links.length === 0) return reject({ ...loc, reason: "no link found" });
+            if (settings.rejectNoLinks && res.links.length === 0) {
+                return reject({ ...loc, reason: "no link found" });
+            }
 
             if (settings.setHeading && loc.heading === 0) {
-                loc.heading = parseInt(res.links[0].heading);
-                if (settings.randomHeadingDeviation) {
-                    loc.heading += randomInRange(-settings.headingDeviation, settings.headingDeviation);
-                } else {
-                    loc.heading += randomSign() * settings.headingDeviation;
+                if (res.links.length === 0) {
+                    loc.heading = parseInt(res.links[0].heading);
+                    if (settings.randomHeadingDeviation) {
+                        loc.heading += randomInRange(-settings.headingDeviation, settings.headingDeviation);
+                    } else {
+                        loc.heading += randomSign() * settings.headingDeviation;
+                    }
+                } else if (settings.rejectNoLinksIfNoHeading) {
+                    return reject({ ...loc, reason: "no link found" });
                 }
             }
 
-            if (settings.updateHeading) {
+            if (settings.updateHeading && res.links.length !== 0) {
                 if (settings.randomHeadingDeviation) {
                     loc.heading =
                         getNearestHeading(res.links, loc.heading) +
