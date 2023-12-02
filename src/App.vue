@@ -64,6 +64,17 @@
 					optText="Enable only if you want to update ALL your headings" />
 				<hr />
 
+				<Checkbox @change="settings.rejectNoLinks ? settings.rejectNoLinksIfNoHeading = true : true"
+					v-model:checked="settings.rejectNoLinks" label="Reject all isolated locations"
+					optText="This is for locations with no arrows to move to a nearby location, which may include regular coverage. The road direction can't be determined for them." />
+				<hr />
+
+				<div v-if="settings.setHeading && !settings.rejectNoLinks">
+					<Checkbox @change="settings.rejectNoLinksIfNoHeading ? true : settings.rejectNoLinks = false"
+						v-model:checked="settings.rejectNoLinksIfNoHeading" label="Reject unpanned isolated locations" />
+					<hr />
+				</div>
+
 				<div v-if="settings.setHeading || settings.updateHeading">
 					<label class="flex-center wrap">
 						Heading deviation <input type="range" v-model.number="settings.headingDeviation" min="0" max="90"
@@ -124,8 +135,8 @@
 				<p>
 					<Badge changeClass :number="state.outOfDate" /> doesn't match date criteria
 				</p>
-				<p>
-					<Badge changeClass :number="state.brokenLinks" /> broken links
+				<p v-if="settings.rejectNoLinks || settings.rejectNoLinksIfNoHeading">
+					<Badge changeClass :number="state.isolated" /> isolated{{ settings.rejectNoLinks ? "" : " and unpanned" }}
 				</p>
 				<p v-if="settings.removeNearby">
 					<Badge changeClass :number="state.tooClose" /> within the same ({{ settings.nearbyRadius }} m)
@@ -202,13 +213,14 @@
 						<ExportToCSV :customMap="customMap" :data="rejectedLocs.outOfDate" isRejected />
 					</div>
 				</div>
-				<div v-if="rejectedLocs.brokenLinks.length" class="flex-center wrap space-between">
-					<h3 class="danger"> - {{ rejectedLocs.brokenLinks.length }} broken links ({{
-						((rejectedLocs.brokenLinks.length / customMap.nbLocs) * 100).toFixed(2) }}%)</h3>
+				<div v-if="rejectedLocs.isolated.length" class="flex-center wrap space-between">
+					<h3 class="danger"> - {{ rejectedLocs.isolated.length }} isolated
+						{{ settings.rejectNoLinks ? "" : " and unpanned" }} ({{
+						((rejectedLocs.isolated.length / customMap.nbLocs) * 100).toFixed(2) }}%)</h3>
 					<div class="flex-center wrap gap">
-						<CopyToClipboard :customMap="customMap" :data="rejectedLocs.brokenLinks" />
-						<ExportToJSON :customMap="customMap" :data="rejectedLocs.brokenLinks" isRejected />
-						<ExportToCSV :customMap="customMap" :data="rejectedLocs.brokenLinks" isRejected />
+						<CopyToClipboard :customMap="customMap" :data="rejectedLocs.isolated" />
+						<ExportToJSON :customMap="customMap" :data="rejectedLocs.isolated" isRejected />
+						<ExportToCSV :customMap="customMap" :data="rejectedLocs.isolated" isRejected />
 					</div>
 				</div>
 			</div>
@@ -246,6 +258,8 @@ const settings = reactive({
 	updateHeading: false,
 	headingDeviation: 0,
 	randomHeadingDeviation: false,
+	rejectNoLinks: true,
+	rejectNoLinksIfNoHeading: true,
 	adjustPitch: false,
 	pitchDeviation: 0,
 	fromDate: "2008-01",
@@ -266,7 +280,7 @@ const initialState = {
 	noDescription: 0,
 	gen1: 0,
 	outOfDate: 0,
-	brokenLinks: 0,
+	isolated: 0,
 	tooClose: 0,
 };
 
@@ -276,7 +290,7 @@ const customMap = ref({});
 
 let mapToCheck = [];
 let resolvedLocs = [];
-let rejectedLocs = { SVNotFound: [], unofficial: [], noDescription: [], gen1: [], outOfDate: [], brokenLinks: [], };
+let rejectedLocs = { SVNotFound: [], unofficial: [], noDescription: [], gen1: [], outOfDate: [], isolated: [], };
 let allRejectedLocs = [];
 
 const resetState = () => {
@@ -284,7 +298,7 @@ const resetState = () => {
 	customMap.value = {};
 	mapToCheck.length = 0;
 	resolvedLocs.length = 0;
-	rejectedLocs = { SVNotFound: [], unofficial: [], noDescription: [], gen1: [], outOfDate: [], brokenLinks: [], };
+	rejectedLocs = { SVNotFound: [], unofficial: [], noDescription: [], gen1: [], outOfDate: [], isolated: [], };
 	allRejectedLocs.length = 0;
 };
 
@@ -348,8 +362,8 @@ const start = async () => {
 						state.gen1++;
 						break;
 					case "no link found":
-						rejectedLocs.brokenLinks.push(response.reason);
-						state.brokenLinks++;
+						rejectedLocs.isolated.push(response.reason);
+						state.isolated++;
 						break;
 					case "out of date":
 						rejectedLocs.outOfDate.push(response.reason);
@@ -373,7 +387,7 @@ const start = async () => {
 		...rejectedLocs.noDescription,
 		...rejectedLocs.gen1,
 		...rejectedLocs.outOfDate,
-		...rejectedLocs.brokenLinks
+		...rejectedLocs.isolated
 	]
 
 	state.finished = true;
