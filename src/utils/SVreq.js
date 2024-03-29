@@ -26,33 +26,25 @@ export default function SVreq(loc, settings) {
                 return reject({ ...loc, reason: "no link found" });
             }
 
-            if (settings.setHeading && loc.heading === 0) {
-                if (res.links.length === 0) {
-                    loc.heading = parseInt(res.links[0].heading);
-                    if (settings.randomHeadingDeviation) {
-                        loc.heading += randomInRange(-settings.headingDeviation, settings.headingDeviation);
-                    } else {
-                        loc.heading += randomSign() * settings.headingDeviation;
-                    }
-                } else if (settings.rejectNoLinksIfNoHeading) {
-                    return reject({ ...loc, reason: "no link found" });
-                }
+            if (settings.rejectNoLinksIfNoHeading && res.links.length === 0 && loc.heading === 0) {
+                return reject({ ...loc, reason: "no link found" });
             }
 
-            if (settings.updateHeading && res.links.length !== 0) {
-                if (settings.randomHeadingDeviation) {
-                    loc.heading =
-                        getNearestHeading(res.links, loc.heading) +
-                        randomInRange(-settings.headingDeviation, settings.headingDeviation);
-                } else {
-                    const arr = res.links.flatMap((link) => [
-                        link.heading + settings.headingDeviation,
-                        link.heading - settings.headingDeviation,
-                    ]);
-
-                    const newHeading = closest(arr, loc.heading);
-                    loc.heading = newHeading;
+            if (settings.updateHeading || (settings.setHeading && loc.heading === 0)) {
+                let heading = 0;
+                if (settings.headingReference === "forward") {
+                    heading = res.tiles.centerHeading;
+                } else if (settings.headingReference === "backward") {
+                    heading = (res.tiles.centerHeading + 180) % 360;
+                } else if (settings.headingReference === "link" && res.links.length > 0) {
+                    heading = parseInt(res.links[0].heading);
                 }
+                if (settings.randomHeadingDeviation) {
+                    heading += randomInRange(-settings.headingDeviation, settings.headingDeviation);
+                } else {
+                    heading += randomSign() * settings.headingDeviation;
+                }
+                loc.heading = heading;
             }
 
             if (settings.adjustPitch) {
@@ -82,16 +74,16 @@ export default function SVreq(loc, settings) {
 }
 const randomSign = () => (Math.random() >= 0.5 ? 1 : -1);
 
-const closest = (arr, num) => arr.reduce((a, b) => (Math.abs(b - num) < Math.abs(a - num) ? b : a));
-
-const difference = (a, b) => {
-    const d = Math.abs(a - b);
-    return d > 180 ? 360 - d : d;
-};
-
-const getNearestHeading = (bs, a) => {
-    const ds = bs.map((b) => difference(a, b.heading));
-    return bs[ds.indexOf(Math.min.apply(null, ds))].heading;
-};
-
 const randomInRange = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+// const closest = (arr, num) => arr.reduce((a, b) => (Math.abs(b - num) < Math.abs(a - num) ? b : a));
+
+// const difference = (a, b) => {
+//     const d = Math.abs(a - b);
+//     return d > 180 ? 360 - d : d;
+// };
+
+// const getNearestHeading = (bs, a) => {
+//     const ds = bs.map((b) => difference(a, b.heading));
+//     return bs[ds.indexOf(Math.min.apply(null, ds))].heading;
+// };
