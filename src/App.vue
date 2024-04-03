@@ -1,146 +1,207 @@
 <template>
     <div class="wrapper">
-        <div class="heading flex-center wrap space-between">
+        <div class="flex-center wrap space-between p-05">
             <h1>MapCheckr</h1>
-            <div v-if="!state.started" class="flex-center wrap gap">
+            <div v-if="!state.started" class="flex-center wrap gap-02">
                 <Button @click="loadFromClipboard" text="Load from clipboard" />
                 <input @change="loadFromJSON" type="file" id="file" class="input-file" accept="application/json" />
                 <label for="file" class="btn">Import JSON</label>
             </div>
-            <div v-if="state.finished" class="flex-center wrap gap">
+            <div v-if="state.finished" class="flex-center wrap gap-02">
                 <Button @click="resetState" text="Reset" />
             </div>
         </div>
 
-        <div class="wrapper__innner">
+        <div class="wrapper__inner">
             <div v-if="error" class="container center danger">{{ error }}</div>
 
             <div v-if="state.loaded" class="container center">
                 <h4>{{ customMap.nbLocs }} imported {{ pluralize("location", customMap.nbLocs) }}</h4>
-                <Button v-if="!state.started" @click="handleClickStart" class="mt-1" text="Start checking" />
+                <Button v-if="!state.started" @click="handleClickStart" class="mt-02" text="Start checking" />
             </div>
 
             <div v-if="!state.started" class="container">
-                Radius<input type="number" v-model.number="settings.radius" @change="handleRadiusInput" />m<br />
-                <small>Radius in which to search for a panorama.</small>
-                <hr />
+                <h2>General settings</h2>
+                <div class="content">
+                    <div class="flex">
+                        <div class="col-50">
+                            <h4>Filter by coverage</h4>
+                            <Checkbox v-model:checked="settings.filterByGen[1]" label="Gen 1" />
+                            <Checkbox v-model:checked="settings.filterByGen[23]" label="Gen 2 & 3" />
+                            <Checkbox v-model:checked="settings.filterByGen[4]" label="Gen 4" />
+                        </div>
 
-                <Checkbox
-                    v-model:checked="settings.rejectUnofficial"
-                    label="Reject unofficial"
-                    optText="Uncheck for photospheres map"
-                />
-                <hr />
+                        <div class="col-50">
+                            <h4>Filter by date</h4>
+                            <div class="form__row space-between">
+                                <label>From :</label>
+                                <input type="month" v-model="settings.filterByDate.from" min="2007-01" :max="dateToday" />
+                            </div>
+                            <div class="form__row space-between">
+                                <label>To :</label>
+                                <input type="month" v-model="settings.filterByDate.to" :max="dateToday" />
+                            </div>
+                        </div>
+                    </div>
+                    <hr />
 
-                <Checkbox
-                    @change="settings.rejectNoLinks ? (settings.rejectNoLinksIfNoHeading = true) : true"
-                    v-model:checked="settings.rejectNoLinks"
-                    label="Reject all isolated locations"
-                    optText="Uncheck for photospheres map. This is for locations with no arrows to move to a nearby location, which may include regular but broken coverage."
-                />
-                <hr />
-
-                <div v-if="settings.rejectUnofficial">
                     <Checkbox
-                        v-model:checked="settings.rejectNoDescription"
-                        label="Reject locations without description"
-                        optText="This might prevent trekkers in most cases, but can reject regular streetview without
-						description (eg. Mongolia/South Korea don't have any
-						description)"
+                        v-model:checked="settings.rejectUnofficial"
+                        label="Reject unofficial"
+                        optText="Uncheck for photospheres map"
                     />
                     <hr />
-                </div>
 
-                <Checkbox v-model:checked="settings.rejectGen1" label="Reject gen 1 coverage" />
-                <hr />
+                    <div v-if="settings.rejectUnofficial">
+                        <Checkbox
+                            v-model:checked="settings.rejectNoDescription"
+                            label="Reject locations without description"
+                            optText="This might prevent trekkers in most cases, but can reject regular streetview without
+						description (eg. Mongolia/South Korea)"
+                        />
+                        <hr />
+                    </div>
 
-                <Checkbox
-                    v-model:checked="settings.fixMisplaced"
-                    label="Fix misplaced locations"
-                    optText="Some of your locations might slightly change"
-                />
-                <hr />
-
-                <Checkbox
-                    v-model:checked="settings.getLatestPano"
-                    label="Update coverage"
-                    optText="Update your locations to the most recent coverage. Also useful to automatically panoID your map."
-                />
-                <hr />
-
-                <div class="flex-center wrap">
-                    <Checkbox v-model:checked="settings.removeNearby" label="Reject duplicates within a " optText="" />
-                    <input type="number" v-model.number="settings.nearbyRadius" @change="handleNearbyRadiusInput" />m
-                    radius
-                </div>
-                <hr />
-
-                <h3>Headings</h3>
-                <Checkbox
-                    @change="settings.setHeading ? (settings.updateHeading = false) : true"
-                    v-model:checked="settings.setHeading"
-                    label="Set headings for UNPANNED locations"
-                />
-                <hr />
-                <Checkbox
-                    @change="settings.updateHeading ? (settings.setHeading = false) : true"
-                    v-model:checked="settings.updateHeading"
-                    label="Update ALL headings"
-                    optText="Enable only if you want to update ALL your headings"
-                />
-                <hr />
-
-                <div v-if="!settings.rejectNoLinks">
                     <Checkbox
-                        @change="settings.rejectNoLinksIfNoHeading ? true : (settings.rejectNoLinks = false)"
-                        v-model:checked="settings.rejectNoLinksIfNoHeading"
-                        label="Reject unpanned isolated locations"
+                        @change="settings.rejectNoLinks ? (settings.rejectNoLinksIfNoHeading = true) : true"
+                        v-model:checked="settings.rejectNoLinks"
+                        label="Reject all isolated locations"
+                        optText="Uncheck for photospheres map. This is for locations with no arrows to move to a nearby location, which may include regular but broken coverage."
                     />
                     <hr />
-                </div>
 
-                <div v-if="settings.setHeading || settings.updateHeading" class="indent">
-                    <label><input type="radio" v-model="settings.headingReference" value="link" /> Along road</label
-                    ><br />
-                    <label
-                        ><input type="radio" v-model="settings.headingReference" value="forward" /> To front of
-                        car</label
-                    ><br />
-                    <label
-                        ><input type="radio" v-model="settings.headingReference" value="backward" /> To back of
-                        car</label
-                    >
-                    <label class="flex-center wrap">
-                        Deviation
-                        <input type="range" v-model.number="settings.headingDeviation" min="0" max="360" step="1" />
-                        (+/- {{ settings.headingDeviation }}°)
-                    </label>
-                    <small>0° will point directly towards the road.</small>
-                    <Checkbox v-model:checked="settings.randomHeadingDeviation" label="Randomize in range" />
+                    <div v-if="!settings.rejectNoLinks">
+                        <Checkbox
+                            @change="settings.rejectNoLinksIfNoHeading ? true : (settings.rejectNoLinks = false)"
+                            v-model:checked="settings.rejectNoLinksIfNoHeading"
+                            label="Reject unpanned isolated locations"
+                        />
+                        <hr />
+                    </div>
+
+                    <Checkbox
+                        v-model:checked="settings.updatePanoIDs"
+                        label="Update panoIDs"
+                        optText="Update your locations to the most recent coverage. Also useful to automatically panoID your map."
+                    />
+                    <hr />
+
+                    <Checkbox
+                        v-model:checked="settings.updateCoordinates"
+                        label="Update coordinates"
+                        optText="non-panoID locations might slightly change"
+                    />
+                    <hr />
+
+                    Radius<input type="number" v-model.number="settings.radius" @change="handleRadiusInput" />m<br />
+                    <small>Radius in which to search for a non-panoID'ed panorama.</small>
+                    <hr />
+
+                    <div class="flex-center">
+                        <Checkbox v-model:checked="settings.removeNearby" label="Reject duplicates within a " />
+                        <input type="number" v-model.number="settings.nearbyRadius" @change="handleNearbyRadiusInput" />m radius
+                    </div>
                     <hr />
                 </div>
 
-                <Checkbox v-model:checked="settings.adjustPitch" label="Adjust pitch" optText="" />
-                <div v-if="settings.adjustPitch" class="indent">
-                    <label class="flex-center wrap">
-                        Pitch deviation
-                        <input type="range" v-model.number="settings.pitchDeviation" min="-90" max="90" step="1" /> ({{
-                            settings.pitchDeviation
-                        }}°)
-                    </label>
-                    <small>0 by default. -90° for tarmac/+90° for sky</small>
-                </div>
+                <h2>Headings</h2>
+                <div class="content">
+                    <div class="mb-1">
+                        <h4>Update headings for :</h4>
+                        <div class="indent">
+                            <Checkbox v-model:checked="settings.headings.filterBy.panoID" label="panoID" />
+                            <Checkbox v-model:checked="settings.headings.filterBy.nonPanoID" label="non-panoID" />
+                            <Checkbox v-model:checked="settings.headings.filterBy.panned" label="panned" />
+                            <Checkbox v-model:checked="settings.headings.filterBy.unpanned" label="unpanned" />
+                            <small
+                                v-if="Object.values(settings.headings.filterBy).some((val) => val) && !areHeadingSettingsGood"
+                                class="danger"
+                                >Incorrect heading settings</small
+                            >
+                        </div>
+                    </div>
 
-                <hr />
+                    <div v-if="areHeadingSettingsGood">
+                        <div class="mb-1">
+                            <h4>Direction :</h4>
+                            <div class="indent">
+                                <div class="form__row space-between" v-if="settings.filterByGen[1]">
+                                    Gen 1 :
+                                    <select v-model="settings.headings.directionBy[1]">
+                                        <option value="link">Along road</option>
+                                        <option value="forward">To front of car</option>
+                                        <option value="backward">To back of car</option>
+                                        <option value="any">Any</option>
+                                    </select>
+                                </div>
+                                <div class="form__row space-between" v-if="settings.filterByGen[23]">
+                                    Gen 2 & 3 :
+                                    <select v-model="settings.headings.directionBy[23]">
+                                        <option value="link">Along road</option>
+                                        <option value="forward">To front of car</option>
+                                        <option value="backward">To back of car</option>
+                                        <option value="any">Any</option>
+                                    </select>
+                                </div>
+                                <div class="form__row space-between" v-if="settings.filterByGen[4]">
+                                    Gen 4 :
+                                    <select v-model="settings.headings.directionBy[4]">
+                                        <option value="link">Along road</option>
+                                        <option value="forward">To front of car</option>
+                                        <option value="backward">To back of car</option>
+                                        <option value="any">Any</option>
+                                    </select>
+                                </div>
+                                <div
+                                    class="form__row space-between"
+                                    v-if="Object.values(settings.filterByGen).some((val) => val === true)"
+                                >
+                                    Dead ends :
+                                    <select v-model="settings.headings.directionBy['DEAD_END']">
+                                        <option value="link">Along road</option>
+                                        <option value="forward">To front of car</option>
+                                        <option value="backward">To back of car</option>
+                                        <option value="any">Any</option>
+                                    </select>
+                                </div>
 
-                <h3>Filter by date</h3>
-                <div class="flex space-between">
-                    <label>From</label>
-                    <input type="month" v-model="settings.fromDate" min="2007-01" :max="dateToday" />
-                </div>
-                <div class="flex space-between mtb-1">
-                    <label>To</label>
-                    <input type="month" v-model="settings.toDate" :max="dateToday" />
+                                <label class="form__row space-between">
+                                    Heading deviation :
+                                    <Slider
+                                        v-model="settings.headings.range"
+                                        :min="-180"
+                                        :max="180"
+                                        :lazy="false"
+                                        tooltipPosition="bottom"
+                                        style="width: 140px"
+                                    />
+                                </label>
+
+                                <Checkbox
+                                    v-model:checked="settings.headings.randomInRange"
+                                    label="Randomize in range"
+                                    class="indent"
+                                />
+                            </div>
+                        </div>
+                        <div class="mb-1">
+                            <Checkbox v-model:checked="settings.headings.updatePitch" label="Pitch :" class="strong" />
+                            <div v-if="settings.headings.updatePitch" class="indent">
+                                <label class="flex-center space-between">
+                                    Pitch deviation :
+                                    <Slider
+                                        v-model.number="settings.headings.pitchDeviation"
+                                        :min="-90"
+                                        :max="90"
+                                        :lazy="false"
+                                        tooltipPosition="bottom"
+                                        style="width: 140px"
+                                    />
+                                </label>
+                                <small>0 by default. -90° for tarmac/+90° for sky</small>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -150,23 +211,18 @@
                     <Spinner />
                 </h2>
                 <h2 v-else>Results</h2>
-                <p>
-                    <Badge :text="state.step + '/' + customMap.nbLocs" /> {{ pluralize("location", customMap.nbLocs) }}
-                </p>
+                <p><Badge :text="state.step + '/' + customMap.nbLocs" /> {{ pluralize("location", customMap.nbLocs) }}</p>
                 <p><Badge :number="state.success" /> success</p>
-                <p><Badge changeClass :number="state.notFound" /> streetview not found</p>
+                <p><Badge changeClass :number="state.SVNotFound" /> streetview not found</p>
                 <p><Badge changeClass :number="state.unofficial" /> unofficial</p>
                 <p><Badge changeClass :number="state.noDescription" /> no description (potential trekker)</p>
-                <p><Badge changeClass :number="state.gen1" /> gen 1</p>
-                <p><Badge changeClass :number="state.outOfDate" /> doesn't match date criteria</p>
+                <p><Badge changeClass :number="state.wrongGeneration" /> wrong camera generation</p>
+                <p><Badge changeClass :number="state.outOfDateRange" /> out of date criteria</p>
                 <p v-if="settings.rejectNoLinks || settings.rejectNoLinksIfNoHeading">
-                    <Badge changeClass :number="state.isolated" /> isolated{{
-                        settings.rejectNoLinks ? "" : " and unpanned"
-                    }}
+                    <Badge changeClass :number="state.isolated" /> isolated{{ settings.rejectNoLinks ? "" : " and unpanned" }}
                 </p>
                 <p v-if="settings.removeNearby">
-                    <Badge changeClass :number="state.tooClose" /> within the same ({{ settings.nearbyRadius }} m)
-                    radius
+                    <Badge changeClass :number="state.tooClose" /> within the same ({{ settings.nearbyRadius }}m) radius
                 </p>
             </div>
 
@@ -178,7 +234,7 @@
                             ((resolvedLocs.length / customMap.nbLocs) * 100).toFixed(2)
                         }}%)
                     </h3>
-                    <div v-if="resolvedLocs.length" class="flex-center wrap gap">
+                    <div v-if="resolvedLocs.length" class="flex-center wrap gap-02">
                         <CopyToClipboard :customMap="customMap" :data="resolvedLocs" />
                         <ExportToJSON :customMap="customMap" :data="resolvedLocs" />
                         <ExportToCSV :customMap="customMap" :data="resolvedLocs" />
@@ -192,7 +248,7 @@
                             ((allRejectedLocs.length / customMap.nbLocs) * 100).toFixed(2)
                         }}%)
                     </h3>
-                    <div class="flex-center wrap gap">
+                    <div class="flex-center wrap gap-02">
                         <CopyToClipboard :customMap="customMap" :data="allRejectedLocs" />
                         <ExportToJSON :customMap="customMap" :data="allRejectedLocs" isRejected />
                         <ExportToCSV :customMap="customMap" :data="allRejectedLocs" isRejected />
@@ -204,7 +260,7 @@
                             ((rejectedLocs.SVNotFound.length / customMap.nbLocs) * 100).toFixed(2)
                         }}%)
                     </h3>
-                    <div class="flex-center wrap gap">
+                    <div class="flex-center wrap gap-02">
                         <CopyToClipboard :customMap="customMap" :data="rejectedLocs.SVNotFound" />
                         <ExportToJSON :customMap="customMap" :data="rejectedLocs.SVNotFound" isRejected />
                         <ExportToCSV :customMap="customMap" :data="rejectedLocs.SVNotFound" isRejected />
@@ -216,7 +272,7 @@
                             ((rejectedLocs.unofficial.length / customMap.nbLocs) * 100).toFixed(2)
                         }}%)
                     </h3>
-                    <div class="flex-center wrap gap">
+                    <div class="flex-center wrap gap-02">
                         <CopyToClipboard :customMap="customMap" :data="rejectedLocs.unofficial" />
                         <ExportToJSON :customMap="customMap" :data="rejectedLocs.unofficial" isRejected />
                         <ExportToCSV :customMap="customMap" :data="rejectedLocs.unofficial" isRejected />
@@ -228,44 +284,43 @@
                             ((rejectedLocs.noDescription.length / customMap.nbLocs) * 100).toFixed(2)
                         }}%)
                     </h3>
-                    <div class="flex-center wrap gap">
+                    <div class="flex-center wrap gap-02">
                         <CopyToClipboard :customMap="customMap" :data="rejectedLocs.noDescription" />
                         <ExportToJSON :customMap="customMap" :data="rejectedLocs.noDescription" isRejected />
                         <ExportToCSV :customMap="customMap" :data="rejectedLocs.noDescription" isRejected />
                     </div>
                 </div>
-                <div v-if="rejectedLocs.gen1.length" class="flex-center wrap space-between">
+                <div v-if="rejectedLocs.wrongGeneration.length" class="flex-center wrap space-between">
                     <h3 class="danger">
-                        - {{ rejectedLocs.gen1.length }} gen 1 ({{
-                            ((rejectedLocs.gen1.length / customMap.nbLocs) * 100).toFixed(2)
+                        - {{ rejectedLocs.wrongGeneration.length }} wrong camera generation ({{
+                            ((rejectedLocs.wrongGeneration.length / customMap.nbLocs) * 100).toFixed(2)
                         }}%)
                     </h3>
-                    <div class="flex-center wrap gap">
-                        <CopyToClipboard :customMap="customMap" :data="rejectedLocs.gen1" />
-                        <ExportToJSON :customMap="customMap" :data="rejectedLocs.gen1" isRejected />
-                        <ExportToCSV :customMap="customMap" :data="rejectedLocs.gen1" isRejected />
+                    <div class="flex-center wrap gap-02">
+                        <CopyToClipboard :customMap="customMap" :data="rejectedLocs.wrongGeneration" />
+                        <ExportToJSON :customMap="customMap" :data="rejectedLocs.wrongGeneration" isRejected />
+                        <ExportToCSV :customMap="customMap" :data="rejectedLocs.wrongGeneration" isRejected />
                     </div>
                 </div>
-                <div v-if="rejectedLocs.outOfDate.length" class="flex-center wrap space-between">
+                <div v-if="rejectedLocs.outOfDateRange.length" class="flex-center wrap space-between">
                     <h3 class="danger">
-                        - {{ rejectedLocs.outOfDate.length }} doesn't match date criteria ({{
-                            ((rejectedLocs.outOfDate.length / customMap.nbLocs) * 100).toFixed(2)
+                        - {{ rejectedLocs.outOfDateRange.length }} doesn't match date criteria ({{
+                            ((rejectedLocs.outOfDateRange.length / customMap.nbLocs) * 100).toFixed(2)
                         }}%)
                     </h3>
-                    <div class="flex-center wrap gap">
-                        <CopyToClipboard :customMap="customMap" :data="rejectedLocs.outOfDate" />
-                        <ExportToJSON :customMap="customMap" :data="rejectedLocs.outOfDate" isRejected />
-                        <ExportToCSV :customMap="customMap" :data="rejectedLocs.outOfDate" isRejected />
+                    <div class="flex-center wrap gap-02">
+                        <CopyToClipboard :customMap="customMap" :data="rejectedLocs.outOfDateRange" />
+                        <ExportToJSON :customMap="customMap" :data="rejectedLocs.outOfDateRange" isRejected />
+                        <ExportToCSV :customMap="customMap" :data="rejectedLocs.outOfDateRange" isRejected />
                     </div>
                 </div>
                 <div v-if="rejectedLocs.isolated.length" class="flex-center wrap space-between">
                     <h3 class="danger">
-                        - {{ rejectedLocs.isolated.length }} isolated
-                        {{ settings.rejectNoLinks ? "" : " and unpanned" }} ({{
+                        - {{ rejectedLocs.isolated.length }} isolated {{ settings.rejectNoLinks ? "" : " and unpanned" }} ({{
                             ((rejectedLocs.isolated.length / customMap.nbLocs) * 100).toFixed(2)
                         }}%)
                     </h3>
-                    <div class="flex-center wrap gap">
+                    <div class="flex-center wrap gap-02">
                         <CopyToClipboard :customMap="customMap" :data="rejectedLocs.isolated" />
                         <ExportToJSON :customMap="customMap" :data="rejectedLocs.isolated" isRejected />
                         <ExportToCSV :customMap="customMap" :data="rejectedLocs.isolated" isRejected />
@@ -281,7 +336,9 @@
 </template>
 
 <script setup>
-import { reactive, ref } from "vue";
+import { reactive, ref, computed } from "vue";
+
+import Slider from "@vueform/slider";
 import Button from "@/components/Elements/Button.vue";
 import Checkbox from "@/components/Elements/Checkbox.vue";
 import Badge from "@/components/Elements/Badge.vue";
@@ -298,25 +355,48 @@ const dateToday = new Date().getFullYear() + "-" + ("0" + (new Date().getMonth()
 
 const settings = reactive({
     radius: 50,
+    filterByGen: {
+        1: false,
+        23: true,
+        4: true,
+    },
+    filterByDate: {
+        from: "2008-01",
+        to: dateToday,
+    },
     rejectUnofficial: true,
     rejectNoDescription: false,
-    rejectGen1: true,
-    fixMisplaced: false,
-    setHeading: true,
-    updateHeading: false,
-    headingReference: "link",
-    headingDeviation: 0,
-    randomHeadingDeviation: false,
     rejectNoLinks: true,
     rejectNoLinksIfNoHeading: true,
-    adjustPitch: false,
-    pitchDeviation: 0,
-    fromDate: "2008-01",
-    toDate: dateToday,
+    updateCoordinates: false,
+    updatePanoIDs: false,
     removeNearby: false,
     nearbyRadius: 10,
-    getLatestPano: false,
+    headings: {
+        filterBy: {
+            panned: false,
+            unpanned: false,
+            panoID: false,
+            nonPanoID: false,
+        },
+        directionBy: {
+            1: "forward",
+            23: "forward",
+            4: "forward",
+            DEAD_END: "link",
+        },
+        range: [0, 0],
+        randomInRange: false,
+        updatePitch: false,
+        pitchDeviation: 0,
+    },
 });
+
+const areHeadingSettingsGood = computed(
+    () =>
+        (settings.headings.filterBy.panoID || settings.headings.filterBy.nonPanoID) &&
+        (settings.headings.filterBy.panned || settings.headings.filterBy.unpanned)
+);
 
 const initialState = {
     loaded: false,
@@ -324,11 +404,11 @@ const initialState = {
     finished: false,
     step: 0,
     success: 0,
-    notFound: 0,
+    SVNotFound: 0,
     unofficial: 0,
     noDescription: 0,
-    gen1: 0,
-    outOfDate: 0,
+    wrongGeneration: 0,
+    outOfDateRange: 0,
     isolated: 0,
     tooClose: 0,
 };
@@ -339,7 +419,14 @@ const customMap = ref({});
 
 let mapToCheck = [];
 let resolvedLocs = [];
-let rejectedLocs = { SVNotFound: [], unofficial: [], noDescription: [], gen1: [], outOfDate: [], isolated: [] };
+let rejectedLocs = {
+    SVNotFound: [],
+    unofficial: [],
+    noDescription: [],
+    wrongGeneration: [],
+    outOfDateRange: [],
+    isolated: [],
+};
 let allRejectedLocs = [];
 
 const resetState = () => {
@@ -347,7 +434,14 @@ const resetState = () => {
     customMap.value = {};
     mapToCheck.length = 0;
     resolvedLocs.length = 0;
-    rejectedLocs = { SVNotFound: [], unofficial: [], noDescription: [], gen1: [], outOfDate: [], isolated: [] };
+    rejectedLocs = {
+        SVNotFound: [],
+        unofficial: [],
+        noDescription: [],
+        wrongGeneration: [],
+        outOfDateRange: [],
+        isolated: [],
+    };
     allRejectedLocs.length = 0;
 };
 
@@ -394,29 +488,29 @@ const start = async () => {
                 state.success++;
             } else {
                 switch (response.reason.reason) {
-                    case "sv not found":
+                    case "SV_NOT_FOUND":
                         rejectedLocs.SVNotFound.push(response.reason);
-                        state.notFound++;
+                        state.SVNotFound++;
                         break;
-                    case "unofficial coverage":
+                    case "UNOFFICIAL":
                         rejectedLocs.unofficial.push(response.reason);
                         state.unofficial++;
                         break;
-                    case "no description":
+                    case "NO_DESCRIPTION":
                         rejectedLocs.noDescription.push(response.reason);
                         state.noDescription++;
                         break;
-                    case "gen 1":
-                        rejectedLocs.gen1.push(response.reason);
-                        state.gen1++;
+                    case "WRONG_GENERATION":
+                        rejectedLocs.wrongGeneration.push(response.reason);
+                        state.wrongGeneration++;
                         break;
-                    case "no link found":
+                    case "ISOLATED":
                         rejectedLocs.isolated.push(response.reason);
                         state.isolated++;
                         break;
-                    case "out of date":
-                        rejectedLocs.outOfDate.push(response.reason);
-                        state.outOfDate++;
+                    case "OUT_OF_DATE_RANGE":
+                        rejectedLocs.outOfDateRange.push(response.reason);
+                        state.outOfDateRange++;
                         break;
                 }
             }
@@ -434,8 +528,8 @@ const start = async () => {
         ...rejectedLocs.SVNotFound,
         ...rejectedLocs.unofficial,
         ...rejectedLocs.noDescription,
-        ...rejectedLocs.gen1,
-        ...rejectedLocs.outOfDate,
+        ...rejectedLocs.wrongGeneration,
+        ...rejectedLocs.outOfDateRange,
         ...rejectedLocs.isolated,
     ];
 
@@ -497,8 +591,7 @@ const removeNearby = (arr, radius) => {
     const newArr = [];
     arr.forEach((point) => {
         const hasClosePoint = newArr.some(
-            (found) =>
-                haversineDistance({ lat: point.lat, lng: point.lng }, { lat: found.lat, lng: found.lng }) < radius
+            (found) => haversineDistance({ lat: point.lat, lng: point.lng }, { lat: found.lat, lng: found.lng }) < radius
         );
         if (!hasClosePoint) newArr.push(point);
     });
@@ -528,24 +621,43 @@ const pluralize = (text, count) => (count > 1 ? text + "s" : text);
 
 <style>
 @import "@/assets/main.css";
+@import "@vueform/slider/themes/default.css";
 
 .wrapper {
     margin: 0 auto;
     max-width: 940px;
 }
 
-.wrapper__innner {
+.wrapper__inner {
     border-radius: 0.25rem;
     box-shadow: 0 20px 40px -14px #00000066;
     display: flex;
     flex-direction: column;
     padding: 0.5rem 0.5rem 0 0.5rem;
     background-color: #303030;
+    margin-bottom: 0.5rem;
 }
 
 .container {
     background: #3a3a3a;
     padding: 0.5em 1em;
     margin-bottom: 0.5em;
+}
+.content {
+    padding: 0.5rem 1.5rem;
+}
+
+.input-file {
+    display: none;
+}
+select,
+input[type="range"] {
+    width: 140px;
+}
+.slider-tooltip {
+    background-color: var(--success);
+    color: #000;
+    font-size: 0.8rem;
+    padding: 0 5px;
 }
 </style>

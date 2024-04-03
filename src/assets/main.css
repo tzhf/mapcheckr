@@ -1,4 +1,5 @@
 @import url("https://fonts.googleapis.com/css?family=Quicksand:400,700");
+
 :root {
     --success: #5ee6b2;
     --danger: #e66a6a;
@@ -10,90 +11,73 @@
     box-sizing: border-box;
 }
 body {
+    color-scheme: dark;
     margin: 0;
+    line-height: 1;
     background-color: #242424;
     font-family: "Quicksand", serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    font-size: 15px;
+    font-size: 14px;
     color: #fff;
 }
+
 h1 {
     font-size: 2.2rem;
-    line-height: 0.5em;
 }
 h1,
 h2 {
     font-weight: 400;
 }
-h2 {
+h1, h2, h4 {
     margin: 0 0 0.5rem 0;
 }
-h4 {
-    margin: 0 0 0.5rem 0;
+small {
+    font-size: 11px;
 }
-p {
-    line-height: 1em;
-}
-a {
-    color: var(--success);
-}
-hr {
-    height: 1px;
-    background-color: var(--success);
-    border: none;
-}
-input[type="range"] {
-    margin: 0 0.5em;
-    width: 200px;
-}
-.input-file {
-    display: none;
-}
-select {
-    outline: 0;
-    overflow: hidden;
+
+input, select {
+    margin: 0;
+    font-size: 13px;
+    font-family: inherit;
     background: #292929;
-    color: #ffffff;
-    border: 1px solid var(--success);
     border-radius: 5px;
     cursor: pointer;
+    outline: 0;
+    text-align: center;
+    border: 1px solid var(--success);
+    border: 1px solid #757575;
 }
-select {
-    margin: 0 0.3em;
-    padding: 0.2rem 0.2rem 0.2rem 0.8rem;
-}
+
+input:hover,
 select:hover {
     filter: brightness(120%);
 }
+
 input[type="number"] {
-    width: 3rem;
-    margin: 0 0.3rem;
-    padding: 0.18rem 0rem;
-    background: #292929;
-    color: #ffffff;
-    text-align: center;
-    border-radius: 5px;
-    border: 1px solid var(--success);
-    overflow: hidden;
-    outline: 0;
-    cursor: pointer;
-    -moz-appearance: textfield;
+    width: 2rem;
+    margin: 0 0.2rem;
 }
-input[type="number"]:hover {
-    filter: brightness(120%);
-}
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
+
+input[type="number"],
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
     -webkit-appearance: none;
-    margin: 0;
+    -moz-appearance:textfield;
 }
+
 hr {
-    /* width: 85%; */
     height: 1px;
     margin: 1rem 0;
     background-color: var(--success);
     border: none;
+}
+
+.form__row {
+    display: flex;
+    align-items: center;
+    min-height: 20px;
+    margin-bottom: 0.3rem;
 }
 .flex {
     display: flex;
@@ -101,6 +85,9 @@ hr {
 .flex-col {
     display: flex;
     flex-direction: column;
+}
+.col-50 {
+    flex: 50%;
 }
 .flex-center {
     display: flex;
@@ -115,32 +102,35 @@ hr {
 .wrap {
     flex-wrap: wrap;
 }
-.gap {
-    gap: 0.2rem;
+.gap-02 {
+    gap: 0.18rem;
 }
 .center {
     text-align: center;
 }
 .indent {
-    margin: 0.3em 0 0 1.6em;
+    margin-left: 1.4rem;
 }
-.small {
-    font-size: 0.8rem;
-}
-.mt-1 {
+.mt-02 {
     margin-top: 0.2rem;
 }
-.mb-1 {
+.my-1 {
+    margin: 1rem 0;
+}
+.mb-02 {
     margin-bottom: 0.2rem;
 }
-.ml-1 {
-    margin-left: 0.2rem;
+.mb-05 {
+    margin-bottom: 0.5rem;
 }
-.mtb-1 {
-    margin: 0.5rem 0;
+.mb-1 {
+    margin-bottom: 1rem;
 }
-.mtb-2 {
-    margin: 1rem 0;
+.p-05 {
+    padding: 0.5rem;
+}
+.strong {
+    font-weight: bold;
 }
 .success {
     color: var(--success);
@@ -157,15 +147,13 @@ hr {
 .bg-danger {
     background: var(--danger);
 }
+
 ::-webkit-scrollbar {
-    width: 1rem;
+    width: 0.5rem;
 }
 ::-webkit-scrollbar-track {
     background: #2c2c2c;
 }
 ::-webkit-scrollbar-thumb {
-    background: var(--success);
-}
-::-webkit-scrollbar-thumb:hover {
     background: var(--success);
 }
