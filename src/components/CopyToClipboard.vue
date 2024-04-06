@@ -1,29 +1,15 @@
 <template>
-	<Button @click="copyToClipboard()" :text="text" />
+    <div v-if="isSupported">
+        <Button @click="copy(JSON.stringify(data))" :text="!copied ? 'Clipboard' : 'Copied'" />
+    </div>
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { useClipboard } from "@vueuse/core";
+const { copy, copied, isSupported } = useClipboard();
 import Button from "./Elements/Button.vue";
 
-const props = defineProps({
-	customMap: Object,
-	data: Array,
+const { data } = defineProps({
+    data: Array,
 });
-
-const text = ref("Clipboard");
-
-const copyToClipboard = () => {
-	navigator.clipboard
-		.writeText(JSON.stringify(props.data))
-		.then(() => {
-			text.value = "Copied";
-			setTimeout(() => {
-				text.value = "Clipboard";
-			}, 1000);
-		})
-		.catch((err) => {
-			console.log("Something went wrong", err);
-		});
-};
 </script>

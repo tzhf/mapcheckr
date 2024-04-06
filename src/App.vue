@@ -247,9 +247,9 @@
                         }}%)
                     </h3>
                     <div v-if="resolvedLocs.length" class="flex-center wrap gap-02">
-                        <CopyToClipboard :customMap="customMap" :data="resolvedLocs" />
-                        <ExportToJSON :customMap="customMap" :data="resolvedLocs" />
-                        <ExportToCSV :customMap="customMap" :data="resolvedLocs" />
+                        <CopyToClipboard :data="resolvedLocs" />
+                        <ExportToJSON :data="resolvedLocs" />
+                        <ExportToCSV :data="resolvedLocs" />
                     </div>
                 </div>
 
@@ -261,9 +261,9 @@
                         }}%)
                     </h3>
                     <div class="flex-center wrap gap-02">
-                        <CopyToClipboard :customMap="customMap" :data="allRejectedLocs" />
-                        <ExportToJSON :customMap="customMap" :data="allRejectedLocs" isRejected />
-                        <ExportToCSV :customMap="customMap" :data="allRejectedLocs" isRejected />
+                        <CopyToClipboard :data="allRejectedLocs" />
+                        <ExportToJSON :data="allRejectedLocs" isRejected />
+                        <ExportToCSV :data="allRejectedLocs" isRejected />
                     </div>
                 </div>
                 <div v-if="rejectedLocs.SVNotFound.length" class="flex-center wrap space-between">
@@ -273,9 +273,9 @@
                         }}%)
                     </h3>
                     <div class="flex-center wrap gap-02">
-                        <CopyToClipboard :customMap="customMap" :data="rejectedLocs.SVNotFound" />
-                        <ExportToJSON :customMap="customMap" :data="rejectedLocs.SVNotFound" isRejected />
-                        <ExportToCSV :customMap="customMap" :data="rejectedLocs.SVNotFound" isRejected />
+                        <CopyToClipboard :data="rejectedLocs.SVNotFound" />
+                        <ExportToJSON :data="rejectedLocs.SVNotFound" isRejected />
+                        <ExportToCSV :data="rejectedLocs.SVNotFound" isRejected />
                     </div>
                 </div>
                 <div v-if="rejectedLocs.unofficial.length" class="flex-center wrap space-between">
@@ -285,9 +285,9 @@
                         }}%)
                     </h3>
                     <div class="flex-center wrap gap-02">
-                        <CopyToClipboard :customMap="customMap" :data="rejectedLocs.unofficial" />
-                        <ExportToJSON :customMap="customMap" :data="rejectedLocs.unofficial" isRejected />
-                        <ExportToCSV :customMap="customMap" :data="rejectedLocs.unofficial" isRejected />
+                        <CopyToClipboard :data="rejectedLocs.unofficial" />
+                        <ExportToJSON :data="rejectedLocs.unofficial" isRejected />
+                        <ExportToCSV :data="rejectedLocs.unofficial" isRejected />
                     </div>
                 </div>
                 <div v-if="rejectedLocs.noDescription.length" class="flex-center wrap space-between">
@@ -297,9 +297,9 @@
                         }}%)
                     </h3>
                     <div class="flex-center wrap gap-02">
-                        <CopyToClipboard :customMap="customMap" :data="rejectedLocs.noDescription" />
-                        <ExportToJSON :customMap="customMap" :data="rejectedLocs.noDescription" isRejected />
-                        <ExportToCSV :customMap="customMap" :data="rejectedLocs.noDescription" isRejected />
+                        <CopyToClipboard :data="rejectedLocs.noDescription" />
+                        <ExportToJSON :data="rejectedLocs.noDescription" isRejected />
+                        <ExportToCSV :data="rejectedLocs.noDescription" isRejected />
                     </div>
                 </div>
                 <div v-if="rejectedLocs.wrongGeneration.length" class="flex-center wrap space-between">
@@ -309,9 +309,9 @@
                         }}%)
                     </h3>
                     <div class="flex-center wrap gap-02">
-                        <CopyToClipboard :customMap="customMap" :data="rejectedLocs.wrongGeneration" />
-                        <ExportToJSON :customMap="customMap" :data="rejectedLocs.wrongGeneration" isRejected />
-                        <ExportToCSV :customMap="customMap" :data="rejectedLocs.wrongGeneration" isRejected />
+                        <CopyToClipboard :data="rejectedLocs.wrongGeneration" />
+                        <ExportToJSON :data="rejectedLocs.wrongGeneration" isRejected />
+                        <ExportToCSV :data="rejectedLocs.wrongGeneration" isRejected />
                     </div>
                 </div>
                 <div v-if="rejectedLocs.outOfDateRange.length" class="flex-center wrap space-between">
@@ -321,9 +321,9 @@
                         }}%)
                     </h3>
                     <div class="flex-center wrap gap-02">
-                        <CopyToClipboard :customMap="customMap" :data="rejectedLocs.outOfDateRange" />
-                        <ExportToJSON :customMap="customMap" :data="rejectedLocs.outOfDateRange" isRejected />
-                        <ExportToCSV :customMap="customMap" :data="rejectedLocs.outOfDateRange" isRejected />
+                        <CopyToClipboard :data="rejectedLocs.outOfDateRange" />
+                        <ExportToJSON :data="rejectedLocs.outOfDateRange" isRejected />
+                        <ExportToCSV :data="rejectedLocs.outOfDateRange" isRejected />
                     </div>
                 </div>
                 <div v-if="rejectedLocs.isolated.length" class="flex-center wrap space-between">
@@ -333,9 +333,9 @@
                         }}%)
                     </h3>
                     <div class="flex-center wrap gap-02">
-                        <CopyToClipboard :customMap="customMap" :data="rejectedLocs.isolated" />
-                        <ExportToJSON :customMap="customMap" :data="rejectedLocs.isolated" isRejected />
-                        <ExportToCSV :customMap="customMap" :data="rejectedLocs.isolated" isRejected />
+                        <CopyToClipboard :data="rejectedLocs.isolated" />
+                        <ExportToJSON :data="rejectedLocs.isolated" isRejected />
+                        <ExportToCSV :data="rejectedLocs.isolated" isRejected />
                     </div>
                 </div>
             </div>
