@@ -35,11 +35,23 @@
                             <h4>Filter by date</h4>
                             <div class="form__row space-between">
                                 <label>From :</label>
-                                <input type="month" v-model="settings.filterByDate.from" min="2007-01" :max="dateToday" />
+                                <input
+                                    type="month"
+                                    v-model="settings.filterByDate.from"
+                                    min="2007-01"
+                                    :max="dateToday"
+                                    @change="handleDate($event, 'from')"
+                                />
                             </div>
                             <div class="form__row space-between">
                                 <label>To :</label>
-                                <input type="month" v-model="settings.filterByDate.to" :max="dateToday" />
+                                <input
+                                    type="month"
+                                    v-model="settings.filterByDate.to"
+                                    min="2007-01"
+                                    :max="dateToday"
+                                    @change="handleDate($event, 'to')"
+                                />
                             </div>
                         </div>
                     </div>
@@ -337,6 +349,7 @@
 
 <script setup>
 import { reactive, ref, computed } from "vue";
+import { useStorage } from "@vueuse/core";
 import SVreq from "@/utils/SVreq";
 
 import Slider from "@vueform/slider";
@@ -351,7 +364,7 @@ import Distribution from "@/components/CountryDistribution.vue";
 
 const dateToday = new Date().getFullYear() + "-" + ("0" + (new Date().getMonth() + 1)).slice(-2);
 
-const settings = reactive({
+const settings = useStorage("mapcheckr__settings", {
     radius: 50,
     filterByGen: {
         1: false,
@@ -392,8 +405,8 @@ const settings = reactive({
 
 const areHeadingSettingsGood = computed(
     () =>
-        (settings.headings.filterBy.panoID || settings.headings.filterBy.nonPanoID) &&
-        (settings.headings.filterBy.panned || settings.headings.filterBy.unpanned)
+        (settings.value.headings.filterBy.panoID || settings.value.headings.filterBy.nonPanoID) &&
+        (settings.value.headings.filterBy.panned || settings.value.headings.filterBy.unpanned)
 );
 
 const initialState = {
@@ -454,18 +467,31 @@ const handleClickStart = () => {
 const handleRadiusInput = (e) => {
     const value = parseInt(e.target.value);
     if (!value || value < 10) {
-        settings.radius = 10;
+        settings.value.radius = 10;
     } else if (value > 1000) {
-        settings.radius = 1000;
+        settings.value.radius = 1000;
     }
 };
+
+const handleDate = (e, type) => {
+    const value = parseInt(e.target.value);
+    if (!isDateValid(value)) {
+        if (type === "from") {
+            settings.value.filterByDate.from = "2008-01";
+        } else if (type === "to") {
+            settings.value.filterByDate.to = dateToday;
+        }
+    }
+};
+
+const isDateValid = (dateStr) => !isNaN(new Date(dateStr));
 
 const handleNearbyRadiusInput = (e) => {
     const value = parseInt(e.target.value);
     if (!value || value < 1) {
-        settings.nearbyRadius = 1;
+        settings.value.nearbyRadius = 1;
     } else if (value > 10000000) {
-        settings.nearbyRadius = 10000000;
+        settings.value.nearbyRadius = 10000000;
     }
 };
 
@@ -479,7 +505,7 @@ Array.prototype.chunk = function (n) {
 const start = async () => {
     const chunkSize = 100;
     for (let locationGroup of mapToCheck.chunk(chunkSize)) {
-        const responses = await Promise.allSettled(locationGroup.map((l) => SVreq(l, settings)));
+        const responses = await Promise.allSettled(locationGroup.map((l) => SVreq(l, settings.value)));
         for (let response of responses) {
             if (response.status === "fulfilled") {
                 resolvedLocs.push(response.value);
@@ -515,8 +541,8 @@ const start = async () => {
             state.step++;
         }
     }
-    if (settings.removeNearby) {
-        const newArr = removeNearby(resolvedLocs, settings.nearbyRadius);
+    if (settings.value.removeNearby) {
+        const newArr = removeNearby(resolvedLocs, settings.value.nearbyRadius);
         state.tooClose = resolvedLocs.length - newArr.length;
         resolvedLocs.length = 0;
         resolvedLocs.push(...newArr);
