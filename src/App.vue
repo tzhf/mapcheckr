@@ -503,7 +503,7 @@ Array.prototype.chunk = function (n) {
 };
 
 const start = async () => {
-    const chunkSize = 100;
+    const chunkSize = 500;
     for (let locationGroup of mapToCheck.chunk(chunkSize)) {
         const responses = await Promise.allSettled(locationGroup.map((l) => SVreq(l, settings.value)));
         for (let response of responses) {
