@@ -105,6 +105,9 @@ hr {
 .gap-02 {
     gap: 0.18rem;
 }
+.gap-05 {
+    gap: 0.5rem;
+}
 .center {
     text-align: center;
 }

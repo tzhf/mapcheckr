@@ -2,8 +2,8 @@
     <div class="wrapper">
         <div class="flex-center wrap space-between p-05">
             <h1>MapCheckr</h1>
-            <div v-if="!state.started" class="flex-center wrap gap-02">
-                <Button @click="loadFromClipboard" text="Load from clipboard" />
+            <div v-if="!state.started" class="flex-center wrap gap-05">
+                Paste or
                 <input @change="loadFromJSON" type="file" id="file" class="input-file" accept="application/json" />
                 <label for="file" class="btn">Import JSON</label>
             </div>
@@ -337,19 +337,17 @@
 
 <script setup>
 import { reactive, ref, computed } from "vue";
+import SVreq from "@/utils/SVreq";
 
 import Slider from "@vueform/slider";
 import Button from "@/components/Elements/Button.vue";
 import Checkbox from "@/components/Elements/Checkbox.vue";
 import Badge from "@/components/Elements/Badge.vue";
 import Spinner from "@/components/Elements/Spinner.vue";
-
 import CopyToClipboard from "@/components/CopyToClipboard.vue";
 import ExportToJSON from "@/components/ExportToJSON.vue";
 import ExportToCSV from "./components/ExportToCSV.vue";
 import Distribution from "@/components/CountryDistribution.vue";
-
-import SVreq from "@/utils/SVreq";
 
 const dateToday = new Date().getFullYear() + "-" + ("0" + (new Date().getMonth() + 1)).slice(-2);
 
@@ -537,16 +535,10 @@ const start = async () => {
 };
 
 // Import
-const loadFromClipboard = () => {
-    navigator.clipboard
-        .readText()
-        .then((data) => {
-            checkJSON(data);
-        })
-        .catch((err) => {
-            error.value = "Something went wrong.";
-        });
-};
+document.addEventListener("paste", (evt) => {
+    const data = evt.clipboardData.getData("text/plain");
+    checkJSON(data);
+});
 
 const loadFromJSON = (e) => {
     const files = e.target.files || e.dataTransfer.files;
