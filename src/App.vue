@@ -119,14 +119,14 @@
                 <h2>Headings</h2>
                 <div class="content">
                     <div class="mb-1">
-                        <h4>Update headings for :</h4>
+                        <h4>Update heading for :</h4>
                         <div class="indent">
-                            <Checkbox v-model:checked="settings.headings.filterBy.panoID" label="panoID" />
-                            <Checkbox v-model:checked="settings.headings.filterBy.nonPanoID" label="non-panoID" />
-                            <Checkbox v-model:checked="settings.headings.filterBy.panned" label="panned" />
-                            <Checkbox v-model:checked="settings.headings.filterBy.unpanned" label="unpanned" />
+                            <Checkbox v-model:checked="settings.heading.filterBy.panoID" label="panoID" />
+                            <Checkbox v-model:checked="settings.heading.filterBy.nonPanoID" label="non-panoID" />
+                            <Checkbox v-model:checked="settings.heading.filterBy.panned" label="panned" />
+                            <Checkbox v-model:checked="settings.heading.filterBy.unpanned" label="unpanned" />
                             <small
-                                v-if="Object.values(settings.headings.filterBy).some((val) => val) && !areHeadingSettingsGood"
+                                v-if="Object.values(settings.heading.filterBy).some((val) => val) && !areHeadingSettingsGood"
                                 class="danger"
                                 >Incorrect heading settings</small
                             >
@@ -139,7 +139,7 @@
                             <div class="indent">
                                 <div class="form__row space-between" v-if="settings.filterByGen[1]">
                                     Gen 1 :
-                                    <select v-model="settings.headings.directionBy[1]">
+                                    <select v-model="settings.heading.directionBy[1]">
                                         <option value="link">Along road</option>
                                         <option value="forward">To front of car</option>
                                         <option value="backward">To back of car</option>
@@ -148,7 +148,7 @@
                                 </div>
                                 <div class="form__row space-between" v-if="settings.filterByGen[23]">
                                     Gen 2 & 3 :
-                                    <select v-model="settings.headings.directionBy[23]">
+                                    <select v-model="settings.heading.directionBy[23]">
                                         <option value="link">Along road</option>
                                         <option value="forward">To front of car</option>
                                         <option value="backward">To back of car</option>
@@ -157,7 +157,7 @@
                                 </div>
                                 <div class="form__row space-between" v-if="settings.filterByGen[4]">
                                     Gen 4 :
-                                    <select v-model="settings.headings.directionBy[4]">
+                                    <select v-model="settings.heading.directionBy[4]">
                                         <option value="link">Along road</option>
                                         <option value="forward">To front of car</option>
                                         <option value="backward">To back of car</option>
@@ -169,7 +169,7 @@
                                     v-if="Object.values(settings.filterByGen).some((val) => val === true)"
                                 >
                                     Dead ends :
-                                    <select v-model="settings.headings.directionBy['DEAD_END']">
+                                    <select v-model="settings.heading.directionBy['DEAD_END']">
                                         <option value="link">Along road</option>
                                         <option value="forward">To front of car</option>
                                         <option value="backward">To back of car</option>
@@ -180,7 +180,7 @@
                                 <label class="form__row space-between">
                                     Heading deviation :
                                     <Slider
-                                        v-model="settings.headings.range"
+                                        v-model="settings.heading.range"
                                         :min="-180"
                                         :max="180"
                                         :lazy="false"
@@ -188,21 +188,21 @@
                                         style="width: 140px"
                                     />
                                 </label>
-
                                 <Checkbox
-                                    v-model:checked="settings.headings.randomInRange"
-                                    label="Randomize in range"
+                                    v-model:checked="settings.heading.randomInRange"
+                                    label="Random in range"
                                     class="indent"
                                 />
                             </div>
                         </div>
+
                         <div class="mb-1">
-                            <Checkbox v-model:checked="settings.headings.updatePitch" label="Pitch :" class="strong" />
-                            <div v-if="settings.headings.updatePitch" class="indent">
-                                <label class="flex-center space-between">
+                            <Checkbox v-model:checked="settings.pitch.updatePitch" label="Pitch :" class="strong" />
+                            <div v-if="settings.pitch.updatePitch" class="indent">
+                                <label class="form__row space-between">
                                     Pitch deviation :
                                     <Slider
-                                        v-model.number="settings.headings.pitchDeviation"
+                                        v-model="settings.pitch.range"
                                         :min="-90"
                                         :max="90"
                                         :lazy="false"
@@ -210,7 +210,26 @@
                                         style="width: 140px"
                                     />
                                 </label>
-                                <small>0 by default. -90° for tarmac/+90° for sky</small>
+                                <Checkbox v-model:checked="settings.pitch.randomInRange" label="Random in range" class="indent" />
+                            </div>
+                        </div>
+
+                        <div class="mb-1">
+                            <Checkbox v-model:checked="settings.zoom.updateZoom" label="Zoom :" class="strong" />
+                            <div v-if="settings.zoom.updateZoom" class="indent">
+                                <label class="form__row space-between">
+                                    Zoom deviation :
+                                    <Slider
+                                        v-model="settings.zoom.range"
+                                        :min="0"
+                                        :max="4"
+                                        :step="0.5"
+                                        :lazy="false"
+                                        tooltipPosition="bottom"
+                                        style="width: 140px"
+                                    />
+                                </label>
+                                <Checkbox v-model:checked="settings.zoom.randomInRange" label="Random in range" class="indent" />
                             </div>
                         </div>
                     </div>
@@ -364,7 +383,7 @@ import Distribution from "@/components/CountryDistribution.vue";
 
 const dateToday = new Date().getFullYear() + "-" + ("0" + (new Date().getMonth() + 1)).slice(-2);
 
-const settings = useStorage("mapcheckr__settings", {
+const settings = useStorage("mapcheckr_settings", {
     radius: 50,
     filterByGen: {
         1: false,
@@ -383,7 +402,9 @@ const settings = useStorage("mapcheckr__settings", {
     updatePanoIDs: false,
     removeNearby: false,
     nearbyRadius: 10,
-    headings: {
+    heading: {
+        range: [0, 0],
+        randomInRange: false,
         filterBy: {
             panned: false,
             unpanned: false,
@@ -396,17 +417,23 @@ const settings = useStorage("mapcheckr__settings", {
             4: "forward",
             DEAD_END: "link",
         },
+    },
+    pitch: {
+        updatePitch: false,
         range: [0, 0],
         randomInRange: false,
-        updatePitch: false,
-        pitchDeviation: 0,
+    },
+    zoom: {
+        updateZoom: false,
+        range: [0, 0],
+        randomInRange: false,
     },
 });
 
 const areHeadingSettingsGood = computed(
     () =>
-        (settings.value.headings.filterBy.panoID || settings.value.headings.filterBy.nonPanoID) &&
-        (settings.value.headings.filterBy.panned || settings.value.headings.filterBy.unpanned)
+        (settings.value.heading.filterBy.panoID || settings.value.heading.filterBy.nonPanoID) &&
+        (settings.value.heading.filterBy.panned || settings.value.heading.filterBy.unpanned)
 );
 
 const initialState = {

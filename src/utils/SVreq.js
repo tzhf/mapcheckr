@@ -57,28 +57,42 @@ export default function SVreq(loc, settings) {
 
             if (
                 res.links.length !== 0 &&
-                ((settings.headings.filterBy.panoID && isPanoID) || (settings.headings.filterBy.nonPanoID && !isPanoID)) &&
-                ((settings.headings.filterBy.panned && isPanned) || (settings.headings.filterBy.unpanned && !isPanned))
+                ((settings.heading.filterBy.panoID && isPanoID) || (settings.heading.filterBy.nonPanoID && !isPanoID)) &&
+                ((settings.heading.filterBy.panned && isPanned) || (settings.heading.filterBy.unpanned && !isPanned))
             ) {
+                // Set heading
                 let heading = 0;
 
                 if (res.links.length === 1) {
-                    heading = getHeading(settings.headings.directionBy["DEAD_END"], res);
+                    heading = getHeading(settings.heading.directionBy["DEAD_END"], res);
                 } else if (cameraGeneration) {
-                    heading = getHeading(settings.headings.directionBy[cameraGeneration], res);
+                    heading = getHeading(settings.heading.directionBy[cameraGeneration], res);
                 }
 
-                if (settings.headings.randomInRange) {
-                    heading += randomInRange(settings.headings.range[0], settings.headings.range[1]);
+                if (settings.heading.randomInRange) {
+                    heading += randomInRange(settings.heading.range[0], settings.heading.range[1]);
                 } else {
-                    heading += Math.random() < 0.5 ? settings.headings.range[0] : settings.headings.range[1];
+                    heading += Math.random() < 0.5 ? settings.heading.range[0] : settings.heading.range[1];
                 }
 
                 loc.heading = heading;
 
                 // Set pitch
-                if (settings.headings.updatePitch) {
-                    loc.pitch = settings.headings.pitchDeviation;
+                if (settings.pitch.updatePitch) {
+                    if (settings.pitch.randomInRange) {
+                        loc.pitch = randomInRange(settings.pitch.range[0], settings.pitch.range[1]);
+                    } else {
+                        loc.pitch = Math.random() < 0.5 ? settings.pitch.range[0] : settings.pitch.range[1];
+                    }
+                }
+
+                // Set zoom
+                if (settings.zoom.updateZoom) {
+                    if (settings.zoom.randomInRange) {
+                        loc.zoom = randomInRange(settings.zoom.range[0], settings.zoom.range[1]);
+                    } else {
+                        loc.zoom = Math.random() < 0.5 ? settings.zoom.range[0] : settings.zoom.range[1];
+                    }
                 }
             }
 
@@ -118,7 +132,7 @@ function getHeading(direction, res) {
     }
 }
 
-const randomInRange = (min, max) => Math.floor(Math.random() * (max - min + 1) + min);
+const randomInRange = (min, max) => Math.round((Math.random() * (max - min + 1) + min) * 100) / 100;
 
 // const closest = (arr, num) => arr.reduce((a, b) => (Math.abs(b - num) < Math.abs(a - num) ? b : a));
 
